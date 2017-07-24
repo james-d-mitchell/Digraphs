@@ -50,6 +50,8 @@ DeclareAttribute("DIGRAPHS_Degeneracy", IsDigraph);
 
 DeclareAttribute("ArticulationPoints", IsDigraph);
 DeclareSynonymAttr("CutVertices", ArticulationPoints);
+DeclareAttribute("Bridges", IsDigraph);
+DeclareSynonymAttr("CutEdges", Bridges);
 
 DeclareAttribute("DigraphSymmetricClosure", IsDigraph);
 DeclareAttribute("DigraphReflexiveTransitiveClosure", IsDigraph);

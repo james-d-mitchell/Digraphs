@@ -8,6 +8,67 @@
 #############################################################################
 ##
 
+# Tne next method is (yet another) DFS as described in 
+# https://e-maxx-eng.appspot.com/graph/bridge-searching.html
+
+InstallMethod(Bridges, "for a digraph", [IsDigraph],
+function(digraph)
+  local copy, nbs, bridges, used, tin, fup, timer, dfs, v;
+  
+  if not IsSymmetricDigraph(digraph) then
+    copy := DigraphSymmetricClosure(digraph);
+  else
+    copy := digraph;
+  fi;
+
+  nbs := OutNeighbours(copy);
+
+  bridges := [];
+  nbs  := OutNeighbours(copy);
+  used := BlistList([1 .. DigraphNrVertices(copy)], []);
+  tin  := [];
+  fup  := [];
+  timer := 0;
+
+  dfs := function(v, p)
+    local to;
+    used[v] := true;
+    tin[v]  := timer;
+    fup[v]  := timer;
+    timer   := timer + 1;
+    for to in nbs[v] do
+      if to <> p then 
+        if used[to] then
+          if tin[to] < fup[v] then 
+            fup[v] := tin[to];
+          fi;
+        else 
+          dfs(to, v);
+          #Error();
+          if fup[to] < fup[v] then 
+            fup[v] := fup[to];
+          fi;
+          if fup[to] > tin[v] then 
+            Add(bridges, [v, to]);
+# TODO check multiplicity of edge [v, to]
+          fi;
+        fi;
+      fi;
+    od;
+  end;
+
+  for v in DigraphVertices(copy) do 
+    if not used[v] then 
+      dfs(v, -1);
+    fi;
+  od;
+  #Print("fup = ", fup, "\n");
+  #Print("tin = ", tin, "\n");
+  #Print("used = ", used, "\n");
+  return bridges;
+end);
+
+
 # The next method is (yet another) DFS as described in
 # http://www.eecs.wsu.edu/~holder/courses/CptS223/spr08/slides/graphapps.pdf
 
