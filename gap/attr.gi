@@ -21,14 +21,16 @@ function(digraph)
     copy := digraph;
   fi;
 
-  nbs := OutNeighbours(copy);
-
+  nbs     := OutNeighbours(copy);
   bridges := [];
-  nbs  := OutNeighbours(copy);
-  used := BlistList([1 .. DigraphNrVertices(copy)], []);
-  tin  := [];
-  fup  := [];
-  timer := 0;
+  nbs     := OutNeighbours(copy);
+  used    := BlistList([1 .. DigraphNrVertices(copy)], []);
+  tin     := [];
+  fup     := [];
+  timer   := 0;
+  v_stack := [1];
+  w_stack := [0];
+  depth   := 1;
 
   dfs := function(v, p)
     local to;
@@ -59,6 +61,32 @@ function(digraph)
 
   for v in DigraphVertices(copy) do 
     if not used[v] then 
+      used[v] := true;
+      tin[v]  := timer;
+      fup[v]  := timer;
+      timer   := timer + 1;
+      for to in nbs[v] do
+        if to <> p then 
+          if used[to] then
+            if tin[to] < fup[v] then 
+              fup[v] := tin[to];
+            fi;
+          else 
+
+            dfs(to, v);
+            #Error();
+            if fup[to] < fup[v] then 
+              fup[v] := fup[to];
+            fi;
+            if fup[to] > tin[v] then 
+              Add(bridges, [v, to]);
+# TODO check multiplicity of edge [v, to]
+            fi;
+          fi;
+        fi;
+      od;
+
+
       dfs(v, -1);
     fi;
   od;
