@@ -59,6 +59,7 @@
     <#Include Label="DigraphDegeneracy">
     <#Include Label="DigraphDegeneracyOrdering">
     <#Include Label="HamiltonianPath">
+    <#Include Label="VertexConnectivity">
   </Section>
   
   <Section><Heading>Cayley graphs of groups</Heading>

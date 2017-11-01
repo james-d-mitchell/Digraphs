@@ -1582,3 +1582,119 @@ function(gr)
   od;
   return fail;
 end);
+
+InstallMethod(VertexConnectivity,
+"for a digraph",
+[IsDigraph],
+function(digraph)
+  local edges, edmondskarp, k, kappa, kappas, mindegv, Nv, outdegs, relabel,
+  sdigraph, set1v, x, y;
+
+  if DigraphNrVertices(digraph) = 0 then
+    return 0;
+  fi;
+
+  sdigraph := DigraphSymmetricClosure(DigraphRemoveAllMultipleEdges(digraph));
+  edges := DigraphEdges(sdigraph);
+  kappas := [DigraphNrVertices(digraph) - 1];
+
+  relabel := function(edge, source, sink, wvert)
+    local nedge, i;
+    nedge := [];
+
+    for i in [1, 2] do
+      if edge[i] = source then
+        nedge[i] := 1;
+      elif edge[i] = sink then
+        nedge[i] := 2;
+      else
+        nedge[i] := Position(wvert, edge[i]) * 2 + i;
+      fi;
+    od;
+    return nedge;
+  end;
+
+  kappa := function(source, sink, digraph, edges)
+    local wvert, nedges, i;
+    wvert := ShallowCopy(DigraphVertices(digraph));
+    Remove(wvert, Position(wvert, source));
+    Remove(wvert, Position(wvert, sink));
+    nedges := List(edges, x -> relabel(x, source, sink, wvert));
+
+    for i in [1 .. Size(wvert)] do
+      Add(nedges, [i * 2 + 2, i * 2 + 1]);
+    od;
+
+    return edmondskarp(DigraphByEdges(nedges), 1, 2);
+  end;
+
+  edmondskarp := function(network, source, sink)
+    local flow, predecessor, queue, i, current, flag, e, capacity, outn, n;
+    flag := true;
+    flow := 0;
+    outn := OutNeighbours(network);
+    capacity := List(outn, x -> List(x, y -> true));
+
+    while flag do
+      queue := [source];
+      predecessor := List(outn, x -> 0);
+
+      while not IsEmpty(queue) do
+        current := queue[1];
+        Remove(queue, 1);
+
+        n := 0;
+        for e in outn[current] do
+          n := n + 1;
+          if predecessor[e] = 0 and e <> source and capacity[current][n] then
+            predecessor[e] := [current, n];
+            Add(queue, e);
+          fi;
+        od;
+      od;
+
+      if predecessor[sink] <> 0 then
+        e := predecessor[sink];
+        while e <> 0 do
+          capacity[e[1]][e[2]] := false;
+          e := predecessor[e[1]];
+        od;
+        flow := flow + 1;
+      else
+        flag := false;
+      fi;
+    od;
+    return flow;
+  end;
+
+  outdegs := OutDegrees(sdigraph);
+  mindegv := Position(outdegs, Minimum(outdegs));
+  set1v := ShallowCopy(DigraphVertices(sdigraph));
+  Remove(set1v, mindegv);
+  Nv := OutNeighboursOfVertex(sdigraph, mindegv);
+
+  for x in set1v do
+    if not [mindegv, x] in edges then
+      k := kappa(mindegv, x, sdigraph, edges);
+      if k = 0 then
+        return 0;
+      else
+        AddSet(kappas, k);
+      fi;
+    fi;
+  od;
+
+  for x in [1 .. Size(Nv) - 1] do
+    for y in [x + 1 .. Size(Nv)] do
+      if not [Nv[x], Nv[y]] in edges then
+        k := kappa(Nv[x], Nv[y], sdigraph, edges);
+        if k = 0 then
+          return 0;
+        else
+          AddSet(kappas, k);
+        fi;
+      fi;
+    od;
+  od;
+  return Minimum(kappas);
+end);
