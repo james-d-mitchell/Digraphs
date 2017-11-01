@@ -1628,6 +1628,9 @@ function(digraph)
     return edmondskarp(DigraphByEdges(nedges), 1, 2);
   end;
 
+# The following function is an implementation of the Edmonds-Karp algorithm with
+# some minor adjustments that take into account the fact that the capacity of
+# all edges is 1.
   edmondskarp := function(network, source, sink)
     local flow, predecessor, queue, current, flag, e, capacity, outn, n;
     flag := true;
@@ -1667,6 +1670,9 @@ function(digraph)
     return flow;
   end;
 
+#The following lines are an implementation of Algorithm Eleven from
+#Abdol-Hossein Esfahanian's ``Connectivity Algorithms'' which can be found at
+#https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
   outdegs := OutDegrees(sdigraph);
   mindegv := Position(outdegs, Minimum(outdegs));
   set1v := ShallowCopy(DigraphVertices(sdigraph));
