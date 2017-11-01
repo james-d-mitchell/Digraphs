@@ -1365,9 +1365,9 @@ gap> HamiltonianPath(g);
     The algorithm makes <C>O(n - d - 1 + d * (d - 1) / 2)</C> calls to a
     max-flow algorithm wich itself has complexity <C>O(n ^ 2 * e)</C>, where
     <C>n</C> is the number of vertices of <A>digraph</A>, and <C>e, d</C> are
-    the number of edges and the degree (respectively) of the symmetric closure
-    of the digraph that results by removing all multiple edges of
-    <A>digraph</A>.
+    the number of edges and the minimum out-degree (respectively) of the
+    symmetric closure of the digraph that results by removing all multiple edges
+    of <A>digraph</A>.
 
     <Example><![CDATA[
 gap> J := JohnsonDigraph(9, 2);

@@ -1629,7 +1629,7 @@ function(digraph)
   end;
 
   edmondskarp := function(network, source, sink)
-    local flow, predecessor, queue, i, current, flag, e, capacity, outn, n;
+    local flow, predecessor, queue, current, flag, e, capacity, outn, n;
     flag := true;
     flow := 0;
     outn := OutNeighbours(network);
