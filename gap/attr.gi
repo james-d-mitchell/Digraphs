@@ -1617,8 +1617,8 @@ function(digraph)
   kappa := function(source, sink, digraph, edges)
     local wvert, nedges, i;
     wvert := ShallowCopy(DigraphVertices(digraph));
-    Remove(wvert, Position(wvert, source));
-    Remove(wvert, Position(wvert, sink));
+    Remove(wvert, PositionSorted(wvert, source));
+    Remove(wvert, PositionSorted(wvert, sink));
     nedges := List(edges, x -> relabel(x, source, sink, wvert));
 
     for i in [1 .. Size(wvert)] do
@@ -1670,9 +1670,9 @@ function(digraph)
     return flow;
   end;
 
-#The following lines are an implementation of Algorithm Eleven from
-#Abdol-Hossein Esfahanian's ``Connectivity Algorithms'' which can be found at
-#https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
+# The following lines are an implementation of Algorithm Eleven from
+# Abdol-Hossein Esfahanian's ``Connectivity Algorithms'' which can be found at
+# https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
   outdegs := OutDegrees(sdigraph);
   mindegv := Position(outdegs, Minimum(outdegs));
   set1v := ShallowCopy(DigraphVertices(sdigraph));
@@ -1702,5 +1702,5 @@ function(digraph)
       fi;
     od;
   od;
-  return Minimum(kappas);
+  return kappas[1];
 end);

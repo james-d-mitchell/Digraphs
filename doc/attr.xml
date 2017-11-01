@@ -1360,10 +1360,12 @@ gap> HamiltonianPath(g);
   <Description>
     For a digraph <A>digraph</A> with set of vertices <C>V</C>, the attribute
     <C>VertexConnectivity(<A>digraph</A>)</C> returns the least cardinality
-    <C>|S|</C> of a subset <C>S</C> of <C>V</C> such that their removal either
-    disconnects <A>digraph</A>, makes it trivial, or makes it have no vertices.
+    <C>|S|</C> of a subset <C>S</C> of <C>V</C> such that the induced subdigraph
+    of <A>digraph</A> on <C>V \ S</C> is disconnected, or has at most one
+    vertex. <P/>
+
     The algorithm makes <C>O(n - d - 1 + d * (d - 1) / 2)</C> calls to a
-    max-flow algorithm wich itself has complexity <C>O(n ^ 2 * e)</C>, where
+    max-flow algorithm wich itself has complexity <C>O((n ^ 2) * e)</C>, where
     <C>n</C> is the number of vertices of <A>digraph</A>, and <C>e, d</C> are
     the number of edges and the minimum out-degree (respectively) of the
     symmetric closure of the digraph that results by removing all multiple edges
