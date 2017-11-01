@@ -1673,13 +1673,13 @@ gap> D := Digraph([[]]);
 <digraph with 1 vertex, 0 edges>
 gap> VertexConnectivity(D);
 0
-gap> D := Digraph([[2, 4, 5], [1, 4], [4, 7], [1, 2, 3, 5, 6, 7], [1, 4],
->                  [4, 7], [3, 4, 6]]);
+gap> D := Digraph([[2, 4, 5], [1, 4], [4, 7], [1, 2, 3, 5, 6, 7],
+>                  [1, 4], [4, 7], [3, 4, 6]]);
 <digraph with 7 vertices, 20 edges>
 gap> VertexConnectivity(D);
 1
-gap> D := Digraph([[2, 4, 5], [1, 3, 4], [4, 7], [1, 2, 3, 5, 6, 7], [1, 4],
->                  [4, 7], [3, 4, 6]]);
+gap> D := Digraph([[2, 4, 5], [1, 3, 4], [4, 7], [1, 2, 3, 5, 6, 7],
+>                  [1, 4], [4, 7], [3, 4, 6]]);
 <digraph with 7 vertices, 21 edges>
 gap> VertexConnectivity(D);
 2
