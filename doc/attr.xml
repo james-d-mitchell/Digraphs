@@ -1362,7 +1362,7 @@ gap> HamiltonianPath(g);
     <C>VertexConnectivity(<A>digraph</A>)</C> returns the least cardinality
     <C>|S|</C> of a subset <C>S</C> of <C>V</C> such that their removal either
     disconnects <A>digraph</A>, makes it trivial, or makes it have no vertices.
-    The alrorithm makes <C>O(n - d - 1 + d * (d - 1) / 2)</C> calls to a
+    The algorithm makes <C>O(n - d - 1 + d * (d - 1) / 2)</C> calls to a
     max-flow algorithm wich itself has complexity <C>O(n ^ 2 * e)</C>, where
     <C>n</C> is the number of vertices of <A>digraph</A>, and <C>e, d</C> are
     the number of edges and the degree (respectively) of the symmetric closure
