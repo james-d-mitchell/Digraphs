@@ -14,7 +14,7 @@ DeclareGlobalFunction("DIGRAPHS_Dir");
 DeclareGlobalFunction("DIGRAPHS_ManualExamples");
 DeclareGlobalFunction("DIGRAPHS_StartTest");
 DeclareGlobalFunction("DIGRAPHS_StopTest");
-DeclareGlobalFunction("DIGRAPHS_TestDir");
+DeclareGlobalFunction("DIGRAPHS_TestFiles");
 
 DeclareGlobalFunction("DigraphsMakeDoc");
 DeclareGlobalFunction("DigraphsTestAll");
