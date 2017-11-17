@@ -47,106 +47,66 @@ function()
   return;
 end);
 
-InstallGlobalFunction(DIGRAPHS_TestFiles,
-function(args...)
-  local filenames, extreme, opts, passed, elapsed, FileExt, IsTestableFile,
-  StringFilename, RunTests, using_nauty;
+InstallGlobalFunction(DIGRAPHS_Test,
+function(filename)
+  return DIGRAPHS_RunTest(function()
+                            return Test(filename, rec(showProgress := false));
+                          end);
+end);
 
-  # list, of strings indicating file names of files to test
-  filenames := args[1];
-  if Length(args) > 1 then
-    extreme := args[2];
-    opts    := rec(showProgress := "some");
-    # boolean, for printing before starting to test a file, in case of a long
-    # wait.
-  else
-    extreme := false;
-    opts    := rec(showProgress := false);
+# The parameter <func> should be a 0-argument function which returns true or
+# false.
+InstallGlobalFunction(DIGRAPHS_RunTest,
+function(func)
+  local nauty, Reset, pass;
+  nauty := (ApplicableMethod(AutomorphismGroup, [Digraph([])]) =
+            NautyAutomorphismGroup);
+
+  Reset := function()
+    if nauty then
+      DigraphsUseNauty();
+    else
+      DigraphsUseBliss();
+    fi;
+  end;
+
+  Print("\033[40;38;5;82m");
+  DigraphsUseBliss();
+  Print("\033[0m");
+  if not func() then
+    Reset();
+    return false;
   fi;
 
-  passed  := true;
-  elapsed := 0;
-
-  FileExt := function(str)
-    local split;
-    split := SplitString(str, ".");
-    if Length(split) > 1 then
-      return split[Length(split)];
-    else
-      return "";
-    fi;
-  end;
-
-  IsTestableFile := function(filename)
-    local stringfile, str;
-    stringfile := StringFile(filename);
-    for str in DIGRAPHS_OmitFromTests do
-      if PositionSublist(stringfile, str) <> fail then
-        Print("not testing ", filename, ", it contains a test involving ",
-              str, ", which will not work . . .\n\n");
-        return false;
-      fi;
-    od;
-    return true;
-  end;
-
-  StringFilename := function(filename)
-    local split, pos, range;
-    split  := SplitString(filename, "/");
-    if split[Length(split)] = "testinstall.tst" then
-      return "tst/testinstall.tst";
-    else
-      pos := Position(split, "tst");
-      if pos <> fail then
-        range := [pos .. Length(split)];
-      else
-        range := [Length(split) - 2 .. Length(split)];
-      fi;
-      return JoinStringsWithSeparator(split{range}, "/");
-    fi;
-  end;
-
-  RunTests := function()
-    local start, filename;
-    for filename in filenames do
-      if FileExt(filename) = "tst" and IsTestableFile(filename) then
-        if extreme then
-          Print("Testing file: ", StringFilename(filename), " . . .\n");
-        fi;
-        start := Runtime();
-        if not Test(filename, opts) then
-          passed := false;
-        fi;
-        elapsed := elapsed + Runtime() - start;
-      fi;
-    od;
-  end;
-
-  using_nauty := (ApplicableMethod(AutomorphismGroup, [Digraph([])]) =
-                  NautyAutomorphismGroup);
-
-  DigraphsUseBliss();
-  RunTests();
   if DIGRAPHS_NautyAvailable then
+    Print("\033[40;38;5;82m");
     DigraphsUseNauty();
-    RunTests();
+    Print("\033[0m");
+    if not func() then
+      Reset();
+      return false;
+    fi;
+
+    Print("\033[40;38;5;82m");
     DigraphsUseBliss();
     Info(InfoWarning,
          1,
-         "Pretending that NautyTracesInterface is not available");
+         "Running tests as if NautyTracesInterface is not available");
+    Print("\033[0m");
     MakeReadWriteGlobal("DIGRAPHS_NautyAvailable");
     DIGRAPHS_NautyAvailable := false;
-    RunTests();
+    MakeReadOnlyGlobal("DIGRAPHS_NautyAvailable");
+    pass := func();
+    MakeReadWriteGlobal("DIGRAPHS_NautyAvailable");
     DIGRAPHS_NautyAvailable := true;
     MakeReadOnlyGlobal("DIGRAPHS_NautyAvailable");
+    if not pass then
+      Reset();
+      return false;
+    fi;
   fi;
-
-  if using_nauty then
-    DigraphsUseNauty();
-  fi;
-
-  Print("Total: ", String(elapsed), " msecs\n");
-  return passed;
+  Reset();
+  return true;
 end);
 
 InstallGlobalFunction(DIGRAPHS_ManualExamples,
@@ -170,36 +130,49 @@ function()
   DigraphsMakeDoc();
   Print("\n");
 
-  if not DigraphsTestStandard() then
+  if not DigraphsTestInstall() then
+    Print("Abort: DigraphsTestInstall failed . . . \n");
+    return false;
+  elif not DigraphsTestStandard() then
     Print("Abort: DigraphsTestAll failed . . . \n");
     return false;
   fi;
 
-  DigraphsTestManualExamples();
-  return;
+  return DIGRAPHS_RunTest(DigraphsTestManualExamples);
 end);
 
 InstallGlobalFunction(DigraphsTestInstall,
 function()
-  return DIGRAPHS_TestFiles([Filename(DirectoriesPackageLibrary("digraphs",
-                                                                "tst"),
-                                      "testinstall.tst")]);
+  return DIGRAPHS_RunTest(function()
+    return Test(Filename(DirectoriesPackageLibrary("digraphs",
+                                                   "tst"),
+                         "testinstall.tst"));
+  end);
 end);
 
 InstallGlobalFunction(DigraphsTestStandard,
-function(args...)
-  local dir;
-  dir := Concatenation(DIGRAPHS_Dir(), "/tst/standard/");
-  if Length(args) = 0 then
-    args := DirectoryContents(dir);
+function(arg)
+  local opts, dir;
+  if Length(arg) = 1 and IsRecord(arg[2]) then
+    opts := arg[1];
+  elif Length(arg) <> 0 then
+    ErrorNoReturn("there must be no arguments, or the argument ",
+                  "must be a record");
+  else
+    opts := rec(suppressStatusMessage := true,
+                earlyStop             := true,
+                testOptions := rec(showProgress := false));
   fi;
-  Apply(args, x -> Concatenation(dir, x));
-  return DIGRAPHS_TestFiles(args);
+
+  dir := DirectoriesPackageLibrary("digraphs", "tst/standard/");
+  return DIGRAPHS_RunTest(function()
+                            return TestDirectory(dir, opts);
+                          end);
 end);
 
 InstallGlobalFunction(DigraphsTestExtreme,
-function()
-  local file, dir, args;
+function(arg)
+  local file, opts, dir;
   file := Filename(DirectoriesPackageLibrary("digraphs", "digraphs-lib"),
                    "extreme.d6.gz");
   if file = fail then
@@ -210,10 +183,22 @@ function()
                   "http://gap-packages.github.io/Digraphs/",
                   "\n\nand try again,");
   fi;
-  dir  := Concatenation(DIGRAPHS_Dir(), "/tst/extreme/");
-  args := DirectoryContents(dir);
-  Apply(args, x -> Concatenation(dir, x));
-  return DIGRAPHS_TestFiles(args, true);
+
+  if Length(arg) = 1 and IsRecord(arg[2]) then
+    opts := arg[1];
+  elif Length(arg) <> 0 then
+    ErrorNoReturn("there must be no arguments, or the argument ",
+                  "must be a record");
+  else
+    opts := rec(suppressStatusMessage := true,
+                earlyStop             := true,
+                testOptions := rec(showProgress := "some"));
+  fi;
+
+  dir := DirectoriesPackageLibrary("digraphs", "tst/extreme/");
+  return DIGRAPHS_RunTest(function()
+                            return TestDirectory(dir, opts);
+                          end);
 end);
 
 InstallGlobalFunction(DigraphsMakeDoc,
@@ -563,7 +548,7 @@ end;
 DIGRAPHS_CheckManualConsistency := function()
   local doc;
 
-  doc := ComposedXMLString(Concatenation(DIGRAPHS_Dir(), "/doc"),
+  doc := ComposedXMLString(DirectoriesPackageLibrary("digraphs", "/doc"),
                            "main.xml",
                            DIGRAPHS_DocXMLFiles,
                            true);
