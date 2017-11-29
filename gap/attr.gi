@@ -1587,77 +1587,106 @@ InstallMethod(VertexConnectivity,
 "for a digraph",
 [IsDigraph],
 function(digraph)
-  local edges, edmondskarp, k, kappa, kappas, mindegv, Nv, outdegs, relabel,
-  sdigraph, set1v, x, y;
+  local degs, edges, edmondskarp, indegs, k, kappas, mindegv, newnetw, Nv,
+  outdegs, outn, sdigraph, set1v, x, y;
 
   if DigraphNrVertices(digraph) = 0 then
     return 0;
   fi;
 
-  sdigraph := DigraphSymmetricClosure(DigraphRemoveAllMultipleEdges(digraph));
-  edges := DigraphEdges(sdigraph);
+  if IsMultiDigraph(digraph) then
+    sdigraph := DigraphRemoveAllMultipleEdges(digraph);
+  else
+    sdigraph := digraph;
+  fi;
+
   kappas := [DigraphNrVertices(digraph) - 1];
 
-  relabel := function(edge, source, sink, wvert)
-    local nedge, i;
-    nedge := [];
+# The function newnetw is an implementation of Algorithm Nine from Abdol-Hossein
+# Esfahanian's ``Connectivity Algorithms'' which can be found at
+# https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
+  newnetw := function(source, sink)
+    local decide, noutn, ns, nsp, nt, ntp, x, y;
+    noutn := List([1 .. (Size(outn) - 2) * 2 + 2], x -> []);
 
-    for i in [1, 2] do
-      if edge[i] = source then
-        nedge[i] := 1;
-      elif edge[i] = sink then
-        nedge[i] := 2;
+    decide := function(p, q)
+      if p > source or p > sink then
+        if p > source and p > sink then
+          return (p - 2) * 2 + q;
+        else
+          return (p - 1) * 2 + q;
+        fi;
       else
-        nedge[i] := Position(wvert, edge[i]) * 2 + i;
+        return p * 2 + q;
       fi;
+    end;
+
+    for x in [1 .. Size(outn)] do
+      if x = source then
+        ns := 1;
+        nsp := 1;
+      elif x = sink then
+        ns := 2;
+        nsp := 2;
+      else
+        ns := decide(x, 1);
+        nsp := ns + 1;
+      fi;
+
+      for y in outn[x] do
+        if y = source then
+          nt := 1;
+          ntp := 1;
+        elif y = sink then
+          nt := 2;
+          ntp := 2;
+        else
+          nt := decide(y, 2);
+          ntp := nt - 1;
+        fi;
+
+        AddSet(noutn[ns], nt);
+        AddSet(noutn[ntp], nsp);
+      od;
     od;
-    return nedge;
-  end;
 
-  kappa := function(source, sink, digraph, edges)
-    local wvert, nedges, i;
-    wvert := ShallowCopy(DigraphVertices(digraph));
-    Remove(wvert, PositionSorted(wvert, source));
-    Remove(wvert, PositionSorted(wvert, sink));
-    nedges := List(edges, x -> relabel(x, source, sink, wvert));
-
-    for i in [1 .. Size(wvert)] do
-      Add(nedges, [i * 2 + 2, i * 2 + 1]);
+    for x in [1 .. Size(outn) - 2] do
+      Add(noutn[x * 2 + 2], x * 2 + 1);
     od;
-
-    return edmondskarp(DigraphByEdges(nedges), 1, 2);
+    return noutn;
   end;
 
 # The following function is an implementation of the Edmonds-Karp algorithm with
 # some minor adjustments that take into account the fact that the capacity of
 # all edges is 1.
-  edmondskarp := function(network, source, sink)
-    local flow, predecessor, queue, current, flag, e, capacity, outn, n;
+  edmondskarp := function(netw)
+    local capacity, current, e, flag, flow, m, n, predecessor, queue;
     flag := true;
     flow := 0;
-    outn := OutNeighbours(network);
-    capacity := List(outn, x -> List(x, y -> true));
+    capacity := List(netw, x -> BlistList(x, x));
 
     while flag do
-      queue := [source];
-      predecessor := List(outn, x -> 0);
+      queue := [1];
+      predecessor := List(netw, x -> 0);
 
-      while not IsEmpty(queue) do
-        current := queue[1];
-        Remove(queue, 1);
+      m := 1;
+      while m <= Size(queue) do
+        current := queue[m];
 
         n := 0;
-        for e in outn[current] do
+        for e in netw[current] do
           n := n + 1;
-          if predecessor[e] = 0 and e <> source and capacity[current][n] then
+          if predecessor[e] = 0 and e <> 1 and capacity[current][n] then
             predecessor[e] := [current, n];
             Add(queue, e);
           fi;
         od;
+
+        m := m + 1;
       od;
 
-      if predecessor[sink] <> 0 then
-        e := predecessor[sink];
+      if predecessor[2] <> 0 then
+        e := predecessor[2];
         while e <> 0 do
           capacity[e[1]][e[2]] := false;
           e := predecessor[e[1]];
@@ -1670,18 +1699,21 @@ function(digraph)
     return flow;
   end;
 
-# The following lines are an implementation of Algorithm Eleven from
-# Abdol-Hossein Esfahanian's ``Connectivity Algorithms'' which can be found at
-# https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
+# Referring once again to Abdol-Hossein Esfahanian's paper (see newnetw, above)
+# the following lines implement Algorithm Eleven of that paper.
   outdegs := OutDegrees(sdigraph);
-  mindegv := Position(outdegs, Minimum(outdegs));
+  indegs := InDegrees(sdigraph);
+  degs := List([1 .. Size(outdegs)], x -> Maximum(outdegs[x], indegs[x]));
+  mindegv := Position(degs, Minimum(degs));
   set1v := ShallowCopy(DigraphVertices(sdigraph));
   Remove(set1v, mindegv);
   Nv := OutNeighboursOfVertex(sdigraph, mindegv);
+  outn := OutNeighbours(sdigraph);
 
   for x in set1v do
-    if not [mindegv, x] in edges then
-      k := kappa(mindegv, x, sdigraph, edges);
+    if not x in outn[mindegv] and not mindegv in outn[x] then
+      k := edmondskarp(newnetw(mindegv, x));
+
       if k = 0 then
         return 0;
       else
@@ -1692,8 +1724,9 @@ function(digraph)
 
   for x in [1 .. Size(Nv) - 1] do
     for y in [x + 1 .. Size(Nv)] do
-      if not [Nv[x], Nv[y]] in edges then
-        k := kappa(Nv[x], Nv[y], sdigraph, edges);
+      if not Nv[y] in outn[Nv[x]] and not Nv[x] in outn[Nv[y]] then
+        k := edmondskarp(newnetw(Nv[x], Nv[y]));
+
         if k = 0 then
           return 0;
         else

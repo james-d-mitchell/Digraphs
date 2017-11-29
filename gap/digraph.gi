@@ -1566,6 +1566,11 @@ function(n, k)
   # Known properties
   SetIsMultiDigraph(digraph, false);
   SetIsSymmetricDigraph(digraph, true);
+  if k > n then
+    SetVertexConnectivity(digraph, 0);
+  else
+    SetVertexConnectivity(digraph, (n - k) * k);
+  fi;
   return digraph;
 end);
 

@@ -1364,12 +1364,11 @@ gap> HamiltonianPath(g);
     of <A>digraph</A> on <C>V \ S</C> is disconnected, or has at most one
     vertex. <P/>
 
-    The algorithm makes <C>O(n - d - 1 + d * (d - 1) / 2)</C> calls to a
-    max-flow algorithm wich itself has complexity <C>O((n ^ 2) * e)</C>, where
-    <C>n</C> is the number of vertices of <A>digraph</A>, and <C>e, d</C> are
-    the number of edges and the minimum out-degree (respectively) of the
-    symmetric closure of the digraph that results by removing all multiple edges
-    of <A>digraph</A>.
+    The algorithm makes <C>n - d - 1 + d * (d - 1) / 2</C> calls to a max-flow
+    algorithm which itself has complexity <C>O((n ^ 2) * e)</C>, where <C>n</C>
+    is the number of vertices of <A>digraph</A>, and <C>e, d</C> are the number
+    of edges and the minimum degree (respectively) of the underlying undirected
+    graph of <A>digraph</A>.
 
     <Example><![CDATA[
 gap> J := JohnsonDigraph(9, 2);
