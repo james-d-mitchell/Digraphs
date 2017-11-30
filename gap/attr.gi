@@ -1606,7 +1606,7 @@ function(digraph)
 # Esfahanian's ``Connectivity Algorithms'' which can be found at
 # https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
   newnetw := function(source, sink)
-    local decide, noutn, ns, nsp, nt, ntp, x, y;
+    local dec, decide, lst, noutn, x, y;
     noutn := List([1 .. (Size(outn) - 2) * 2 + 2], x -> []);
 
     decide := function(p, q)
@@ -1621,32 +1621,26 @@ function(digraph)
       fi;
     end;
 
-    for x in [1 .. Size(outn)] do
-      if x = source then
-        ns := 1;
-        nsp := 1;
-      elif x = sink then
-        ns := 2;
-        nsp := 2;
+    dec := function(p, q)
+      local cor;
+      cor := (q - 1) * 2 + 1;
+      if p = source then
+        lst{[cor, cor + 1]} := [1, 1];
+      elif p = sink then
+        lst{[cor, cor + 1]} := [2, 2];
       else
-        ns := decide(x, 1);
-        nsp := ns + 1;
+        lst[cor] := decide(p, q);
+        lst[cor + 1] := lst[cor] + 1 * (-1) ^ (q + 1);
       fi;
+    end;
 
+    lst := [0, 0, 0, 0];
+    for x in [1 .. Size(outn)] do
+      dec(x, 1);
       for y in outn[x] do
-        if y = source then
-          nt := 1;
-          ntp := 1;
-        elif y = sink then
-          nt := 2;
-          ntp := 2;
-        else
-          nt := decide(y, 2);
-          ntp := nt - 1;
-        fi;
-
-        AddSet(noutn[ns], nt);
-        AddSet(noutn[ntp], nsp);
+        dec(y, 2);
+        AddSet(noutn[lst[1]], lst[3]);
+        AddSet(noutn[lst[4]], lst[2]);
       od;
     od;
 
@@ -1681,7 +1675,6 @@ function(digraph)
             Add(queue, e);
           fi;
         od;
-
         m := m + 1;
       od;
 
