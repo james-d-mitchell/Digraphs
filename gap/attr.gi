@@ -1585,7 +1585,7 @@ end);
 
 InstallMethod(VertexConnectivity, "for a digraph", [IsDigraph],
 function(digraph)
-  local kappas, newnetw, edmondskarp, mat, degs, mindegv, mindeg, Nv, outn, k, i, j, x, y;
+  local kappas, newnetw, edmondskarp, mat, degs, mindegv, mindeg, Nv, outn, k, G, x, y, i, j, o;
 
   if DigraphNrVertices(digraph) <= 1 or not IsConnectedDigraph(digraph) then
     return 0;
@@ -1699,8 +1699,12 @@ function(digraph)
 
   Nv := OutNeighboursOfVertex(digraph, mindegv);
   outn := OutNeighbours(digraph);
+  
+  G := Stabilizer(AutomorphismGroup(digraph), mindegv);
 
-  for x in DigraphVertices(digraph) do
+  for x in OrbitsDomain(G, DigraphVertices(digraph), OnPoints) do
+  #for x in DigraphVertices(digraph) do 
+    x := x[1];
     if x <> mindegv and not mat[x][mindegv] and not mat[mindegv][x] then
       k := edmondskarp(newnetw(digraph, mindegv, x), mindegv, x);
       if k = 0 then
@@ -1711,10 +1715,15 @@ function(digraph)
     fi;
   od;
 
-  for x in [1 .. Size(Nv) - 1] do
-    for y in [x + 1 .. Size(Nv)] do
-      if not mat[Nv[x]][Nv[y]] and not mat[Nv[y]][Nv[x]] then
-        k := edmondskarp(newnetw(digraph, Nv[x], Nv[y]), Nv[x], Nv[y]);
+  #for x in [1 .. Size(Nv) - 1] do
+  #  for y in [x + 1 .. Size(Nv)] do
+  G := Stabilizer(AutomorphismGroup(digraph), mindegv);
+
+  for o in Orbits(G, Combinations(Nv, 2), OnSets) do 
+      x := o[1][1];
+      y := o[1][2];
+      if not mat[x][y] and not mat[y][x] then
+        k := edmondskarp(newnetw(digraph, x, y), x, y);
         if k = 0 then
           return 0;
         else
@@ -1722,6 +1731,6 @@ function(digraph)
         fi;
       fi;
     od;
-  od;
+  #od;
   return kappas[1];
 end);
