@@ -1590,7 +1590,7 @@ function(digraph)
   local degs, edges, edmondskarp, indegs, k, kappas, mindegv, newnetw, Nv,
   outdegs, outn, sdigraph, set1v, x, y;
 
-  if DigraphNrVertices(digraph) <= 1 then
+  if DigraphNrVertices(digraph) <= 1 or not IsConnectedDigraph(digraph) then
     return 0;
   fi;
 
