@@ -1590,7 +1590,7 @@ function(digraph)
   local degs, edges, edmondskarp, indegs, k, kappas, mindegv, newnetw, Nv,
   outdegs, outn, sdigraph, set1v, x, y;
 
-  if DigraphNrVertices(digraph) = 0 then
+  if DigraphNrVertices(digraph) <= 1 then
     return 0;
   fi;
 
@@ -1606,22 +1606,10 @@ function(digraph)
 # Esfahanian's ``Connectivity Algorithms'' which can be found at
 # https://www.cse.msu.edu/~cse835/Papers/Graph_connectivity_revised.pdf
   newnetw := function(source, sink)
-    local dec, decide, lst, noutn, x, y;
+    local decide, lst, noutn, x, y;
     noutn := List([1 .. (Size(outn) - 2) * 2 + 2], x -> []);
 
     decide := function(p, q)
-      if p > source or p > sink then
-        if p > source and p > sink then
-          return (p - 2) * 2 + q;
-        else
-          return (p - 1) * 2 + q;
-        fi;
-      else
-        return p * 2 + q;
-      fi;
-    end;
-
-    dec := function(p, q)
       local cor;
       cor := (q - 1) * 2 + 1;
       if p = source then
@@ -1629,16 +1617,24 @@ function(digraph)
       elif p = sink then
         lst{[cor, cor + 1]} := [2, 2];
       else
-        lst[cor] := decide(p, q);
+        if p > source or p > sink then
+          if p > source and p > sink then
+            lst[cor] := (p - 2) * 2 + q;
+          else
+            lst[cor] := (p - 1) * 2 + q;
+          fi;
+        else
+          lst[cor] := p * 2 + q;
+        fi;
         lst[cor + 1] := lst[cor] + 1 * (-1) ^ (q + 1);
       fi;
     end;
 
     lst := [0, 0, 0, 0];
     for x in [1 .. Size(outn)] do
-      dec(x, 1);
+      decide(x, 1);
       for y in outn[x] do
-        dec(y, 2);
+        decide(y, 2);
         AddSet(noutn[lst[1]], lst[3]);
         AddSet(noutn[lst[4]], lst[2]);
       od;
