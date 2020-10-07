@@ -1671,6 +1671,43 @@ function(D, list)
   return DigraphShortestDistance(D, list[1], list[2]);
 end);
 
+InstallMethod(Dominators, "for a digraph and vertex",
+[IsDigraph, IsPosInt],
+function(D, root)
+  local comp, predecessors, dominators, changes, intersection, v, pred;
+
+  comp         := DigraphConnectedComponent(D, root);
+  predecessors := InNeighbours(D);
+  dominators   := List(DigraphVertices(D), x -> []);
+
+  dominators{comp} := List(comp, x -> ShallowCopy(comp));
+
+  dominators[root] := [root];
+
+  repeat
+    changes := false;
+    for v in comp do
+      if v <> root then
+        if not IsEmpty(predecessors[v]) then
+          intersection := ShallowCopy(comp);
+          for pred in predecessors[v] do
+            IntersectSet(intersection, dominators[pred]);
+          od;
+        else
+          intersection := [];
+        fi;
+
+        AddSet(intersection, v);
+        if intersection <> dominators[v] then
+          changes       := true;
+          dominators[v] := intersection;
+        fi;
+      fi;
+    od;
+  until changes = false;
+  return dominators;
+end);
+
 #############################################################################
 # 10. Operations for vertices
 #############################################################################

@@ -2051,6 +2051,38 @@ gap> DigraphDijkstra(gr, 1, 2);
 gap> DigraphDijkstra(gr, 1, 3);
 [ [ 0, 1, 1, 1 ], [ -1, 1, 1, 1 ] ]
 
+#
+gap> D := Digraph([[2], [3, 4, 6], [5], [5], [2], []]);;
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 4 ], [ 1, 2, 5 ], [ 1, 2, 6 ] ]
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ] ]
+gap> D := DigraphDisjointUnion(D, D);
+<immutable digraph with 10 vertices, 40 edges>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [  ], [  ], [  ], [  ], [  ] 
+ ]
+gap> Dominators(D, 6);
+[ [  ], [  ], [  ], [  ], [  ], [ 6 ], [ 6, 7 ], [ 6, 8 ], [ 6, 9 ], 
+  [ 6, 10 ] ]
+gap> Dominators(D, 7);
+[ [  ], [  ], [  ], [  ], [  ], [ 6, 7 ], [ 7 ], [ 7, 8 ], [ 7, 9 ], 
+  [ 7, 10 ] ]
+gap> D := NullDigraph(10);
+<immutable empty digraph with 10 vertices>
+gap> Dominators(D, 1);
+[ [ 1 ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], [  ] ]
+gap> Dominators(D, 2);
+[ [  ], [ 2 ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], [  ] ]
+gap> Dominators(D, 3);
+[ [  ], [  ], [ 3 ], [  ], [  ], [  ], [  ], [  ], [  ], [  ] ]
+gap> D := ChainDigraph(10000);
+<immutable chain digraph with 10000 vertices>
+gap> Dominators(D, 1000000);
+Error, the 2nd argument <v> is not a vertex of the 1st argument <D>,
+
 #DIGRAPHS_UnbindVariables
 gap> Unbind(a);
 gap> Unbind(adj);
