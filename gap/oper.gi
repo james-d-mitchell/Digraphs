@@ -1708,6 +1708,80 @@ function(D, root)
   return dominators;
 end);
 
+Dominators2 := function(D, root)
+  local N, preorder, inverse, parent, index, next, current, nbs, prev, n, a,
+  sdom, pmin, sfind, v, w, i, j, u, y;
+
+  N := DigraphNrVertices(D);
+  preorder := [];
+  preorder[root] := 1;
+  inverse := [root];
+
+  parent := [];
+  parent[root] := fail;
+
+  index := ListWithIdenticalEntries(N, 1);
+
+  next := 2;
+  current := root;
+  nbs := OutNeighbours(D);
+
+  repeat
+    prev := current;
+    for i in [index[current] .. Length(nbs[current])] do
+      n := nbs[current][i];
+      if not IsBound(preorder[n]) then
+        Add(inverse, n);
+        parent[n] := current;
+        index[current] := i + 1;
+        preorder[n] := next;
+        next := next + 1;
+        current := n;
+        break;
+      fi;
+    od;
+    # continues from here 
+    if prev = current then
+      # we backtrack
+      current := parent[current];
+    fi;
+  until current = fail;
+
+  # Semidominators
+  a := ListWithIdenticalEntries(N, fail);
+  sdom := ListWithIdenticalEntries(N, N + 1);
+  nbs := InNeighbours(D);
+  pmin := [];
+
+  sfind := function(x)
+    if a[x] = fail then
+      return x;
+    elif a[a[x]] <> fail then
+      y := sfind(a[x]);
+      if preorder[y] < preorder[pmin[x]] then
+        pmin[x] := y;
+        a[x] := a[a[x]];
+      fi;
+    fi;
+    return pmin[x];
+  end;
+
+  for j in [Length(inverse), Length(inverse) - 1 .. 2] do
+    v := inverse[j];
+    for u in nbs[v] do
+      w := sfind(u);
+      if preorder[w] < sdom[v] then
+        sdom[v] := preorder[w];
+      fi;
+    od;
+    sdom[v] := inverse[sdom[v]];
+    a[v] := parent[v];
+    pmin[v] := sdom[v];
+  od;
+  Error();
+  
+end;
+
 #############################################################################
 # 10. Operations for vertices
 #############################################################################
