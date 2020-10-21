@@ -1709,12 +1709,13 @@ function(D, root)
 end);
 
 Dominators2 := function(D, root)
-  local N, preorder, inverse, parent, index, next, current, nbs, prev, n, a,
-  sdom, pmin, sfind, v, w, i, j, u, y;
+  local N, preorder, inverse, parent, index, next, current, nbs, prev, n, a, sdom, rdom, R, pmin, sfind, v, w, idom, i, j, u;
 
   N := DigraphNrVertices(D);
+  # node -> preorder number
   preorder := [];
   preorder[root] := 1;
+  # preorder number -> node
   inverse := [root];
 
   parent := [];
@@ -1750,10 +1751,13 @@ Dominators2 := function(D, root)
   # Semidominators
   a := ListWithIdenticalEntries(N, fail);
   sdom := ListWithIdenticalEntries(N, N + 1);
+  rdom := [];
+  R := List([1 .. N], x -> []);
   nbs := InNeighbours(D);
   pmin := [];
 
   sfind := function(x)
+    local y;
     if a[x] = fail then
       return x;
     elif a[a[x]] <> fail then
@@ -1768,6 +1772,9 @@ Dominators2 := function(D, root)
 
   for j in [Length(inverse), Length(inverse) - 1 .. 2] do
     v := inverse[j];
+    for u in R[v] do
+      rdom[u] := sfind(u);
+    od;
     for u in nbs[v] do
       w := sfind(u);
       if preorder[w] < sdom[v] then
@@ -1777,9 +1784,27 @@ Dominators2 := function(D, root)
     sdom[v] := inverse[sdom[v]];
     a[v] := parent[v];
     pmin[v] := sdom[v];
+    if parent[v] = sdom[v] then
+      rdom[v] := v;
+    else
+      Add(R[sdom[v]], v);
+    fi;
+  od;
+  for u in R[root] do
+    rdom[u] := sfind(u);
   od;
   Error();
-  
+
+  idom := [root];
+  for v in [2 .. N] do
+    v := inverse[v];
+    if rdom[v] = v then 
+      idom[v] := sdom[v];
+    else 
+      idom[v] := idom[rdom[v]];
+    fi;
+  od;
+  return idom;
 end;
 
 #############################################################################
