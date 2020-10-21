@@ -1708,8 +1708,9 @@ function(D, root)
   return dominators;
 end);
 
-Dominators2 := function(D, root)
-  local N, preorder, inverse, parent, index, next, current, nbs, prev, n, a, sdom, rdom, R, pmin, sfind, v, w, idom, i, j, u;
+DominatorTree := function(D, root)
+  local N, preorder, inverse, parent, index, next, current, succ, prev, n,
+  semi, ancestor, label, bucket, idom, compress, eval, pred, w, x, z, v, y, i;
 
   N := DigraphNrVertices(D);
   # node -> preorder number
@@ -1725,12 +1726,12 @@ Dominators2 := function(D, root)
 
   next := 2;
   current := root;
-  nbs := OutNeighbours(D);
+  succ := OutNeighbours(D);
 
   repeat
     prev := current;
-    for i in [index[current] .. Length(nbs[current])] do
-      n := nbs[current][i];
+    for i in [index[current] .. Length(succ[current])] do
+      n := succ[current][i];
       if not IsBound(preorder[n]) then
         Add(inverse, n);
         parent[n] := current;
@@ -1741,70 +1742,96 @@ Dominators2 := function(D, root)
         break;
       fi;
     od;
-    # continues from here 
+    # continues from here
     if prev = current then
       # we backtrack
       current := parent[current];
     fi;
   until current = fail;
 
-  # Semidominators
-  a := ListWithIdenticalEntries(N, fail);
-  sdom := ListWithIdenticalEntries(N, N + 1);
-  rdom := [];
-  R := List([1 .. N], x -> []);
-  nbs := InNeighbours(D);
-  pmin := [];
+  semi := ShallowCopy(preorder);
+  ancestor := ListWithIdenticalEntries(N, 0);
+  label := [];
+  bucket := List([1 .. N], x -> []);
+  idom := [];
+  idom[root] := root;
 
-  sfind := function(x)
-    local y;
-    if a[x] = fail then
-      return x;
-    elif a[a[x]] <> fail then
-      y := sfind(a[x]);
-      if preorder[y] < preorder[pmin[x]] then
-        pmin[x] := y;
-        a[x] := a[a[x]];
+  compress := function(v)
+    local u;
+    u := ancestor[v];
+    if ancestor[u] <> 0 then
+      compress(u);
+      if semi[label[u]] < semi[label[v]] then
+        label[v] := label[u];
       fi;
+      ancestor[v] := ancestor[u];
     fi;
-    return pmin[x];
   end;
 
-  for j in [Length(inverse), Length(inverse) - 1 .. 2] do
-    v := inverse[j];
-    for u in R[v] do
-      rdom[u] := sfind(u);
-    od;
-    for u in nbs[v] do
-      w := sfind(u);
-      if preorder[w] < sdom[v] then
-        sdom[v] := preorder[w];
+  eval := function(v)
+    if ancestor[v] <> 0 then
+      compress(v);
+      return label[v];
+    else
+      return v;
+    fi;
+  end;
+
+  pred := InNeighbours(D);
+
+  for i in [N, N - 1 .. 2] do
+    w := inverse[i];
+    semi[w] := w;
+
+    for v in pred[w] do
+      x := eval(v);
+      if semi[x] < semi[w] then
+        semi[w] := semi[x];
       fi;
     od;
-    sdom[v] := inverse[sdom[v]];
-    a[v] := parent[v];
-    pmin[v] := sdom[v];
-    if parent[v] = sdom[v] then
-      rdom[v] := v;
-    else
-      Add(R[sdom[v]], v);
+    AddSet(bucket[semi[w]], w);
+    ancestor[w] := parent[w];
+    label[w] := semi[w];
+    z := parent[w];
+    for v in bucket[z] do
+      y := eval(v);
+      if preorder[semi[y]] < preorder[z] then
+        idom[v] := y;
+      else
+        idom[v] := z;
+      fi;
+    od;
+    bucket[z] := [];
+  od;
+  for w in DigraphVertices(D) do
+    if w <> root then
+      if idom[w] <> semi[w] then
+        idom[w] := idom[idom[w]];
+      fi;
     fi;
   od;
-  for u in R[root] do
-    rdom[u] := sfind(u);
-  od;
-  Error();
-
-  idom := [root];
-  for v in [2 .. N] do
-    v := inverse[v];
-    if rdom[v] = v then
-      idom[v] := sdom[v];
-    else
-      idom[v] := idom[rdom[v]];
-    fi;
-  od;
+  idom[root] := fail;
   return idom;
+end;
+
+Dominators2 := function(D, root)
+  local tree, N, result, u, v;
+  tree := DominatorTree(D, root);
+  N := DigraphNrVertices(D);
+  result := [];
+  # TODO go in preorder order
+  for v in [1 .. N] do
+    result[v] := [v];
+    u := tree[v];
+    while u <> fail and not IsBound(result[u]) do
+      Add(result[v], u);
+      u := tree[u];
+    od;
+    if u <> fail and IsBound(result[u]) then
+      Append(result[v], result[u]);
+    fi;
+  od;
+  return result;
 end;
 
 #############################################################################
