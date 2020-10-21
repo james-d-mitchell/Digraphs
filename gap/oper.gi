@@ -1798,9 +1798,9 @@ Dominators2 := function(D, root)
   idom := [root];
   for v in [2 .. N] do
     v := inverse[v];
-    if rdom[v] = v then 
+    if rdom[v] = v then
       idom[v] := sdom[v];
-    else 
+    else
       idom[v] := idom[rdom[v]];
     fi;
   od;
