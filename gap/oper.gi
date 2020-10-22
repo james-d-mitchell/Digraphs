@@ -1709,14 +1709,14 @@ function(D, root)
 end);
 
 DominatorTree := function(D, root)
-  local N, node_to_preorder_num, preorder_num_to_node, parent, index, next, current, succ, prev, n,
-  semi, ancestor, label, bucket, idom, compress, eval, pred, w, x, z, v, y, i;
+  local N, node_to_preorder_num, preorder_num_to_node, parent, index, next,
+  current, succ, prev, n, semi, label, bucket, idom, compress, eval, pred, w,
+  y, x, lastlinked, i, v;
 
   N := DigraphNrVertices(D);
-  # node -> node_to_preorder_num number
+
   node_to_preorder_num := [];
   node_to_preorder_num[root] := 1;
-  # node_to_preorder_num number -> node
   preorder_num_to_node := [root];
 
   parent := [];
@@ -1728,6 +1728,7 @@ DominatorTree := function(D, root)
   current := root;
   succ := OutNeighbours(D);
 
+  # Step 1: DFS to establish preorder
   repeat
     prev := current;
     for i in [index[current] .. Length(succ[current])] do
@@ -1749,8 +1750,10 @@ DominatorTree := function(D, root)
     fi;
   until current = fail;
 
+  # Step 2: find semidominators, and first pass of immediate dominators
   semi := [1 .. N];
-  ancestor := ListWithIdenticalEntries(N, 0);
+  lastlinked := N + 1; # never linked
+  # ancestor := ListWithIdenticalEntries(N, 0);
   label := [];
   bucket := List([1 .. N], x -> []);
   idom := [];
@@ -1758,19 +1761,23 @@ DominatorTree := function(D, root)
 
   compress := function(v)
     local u;
-    u := ancestor[v];
-    if ancestor[u] <> 0 then
+    u := parent[v];
+    if u <> fail and lastlinked <= N and node_to_preorder_num[u] >=
+        node_to_preorder_num[lastlinked] then
+      # parent[u] <> 0 then
       compress(u);
       if node_to_preorder_num[semi[label[u]]]
           < node_to_preorder_num[semi[label[v]]] then
         label[v] := label[u];
       fi;
-      ancestor[v] := ancestor[u];
+      parent[v] := parent[u];
     fi;
   end;
 
   eval := function(v)
-    if ancestor[v] <> 0 then
+    if lastlinked <= N and node_to_preorder_num[v] >=
+        node_to_preorder_num[lastlinked] then
+      # ancestor[v] <> 0 then
       compress(v);
       return label[v];
     else
@@ -1801,13 +1808,16 @@ DominatorTree := function(D, root)
     else
       Add(bucket[semi[w]], w);
     fi;
-    ancestor[w] := parent[w];
+    # link
+    lastlinked := w;
+    # ancestor[w] := parent[w];
     label[w] := semi[w];
   od;
   for v in bucket[root] do
     idom[v] := root;
   od;
 
+  # Step 3: finalize immediate dominators
   for i in [2 .. N] do
     w := preorder_num_to_node[i];
     if idom[w] <> semi[w] then
@@ -1831,6 +1841,7 @@ Dominators2 := function(D, root)
       Append(result[v], result[u]);
     fi;
   od;
+  # Perform(result, Sort);
   return result;
 end;
 
