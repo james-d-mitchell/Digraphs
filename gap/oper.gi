@@ -1752,8 +1752,7 @@ DominatorTree := function(D, root)
 
   # Step 2: find semidominators, and first pass of immediate dominators
   semi := [1 .. N];
-  lastlinked := N + 1; # never linked
-  # ancestor := ListWithIdenticalEntries(N, 0);
+  lastlinked := fail;  # never linked
   label := [];
   bucket := List([1 .. N], x -> []);
   idom := [];
@@ -1762,9 +1761,8 @@ DominatorTree := function(D, root)
   compress := function(v)
     local u;
     u := parent[v];
-    if u <> fail and lastlinked <= N and node_to_preorder_num[u] >=
+    if node_to_preorder_num[u] >=
         node_to_preorder_num[lastlinked] then
-      # parent[u] <> 0 then
       compress(u);
       if node_to_preorder_num[semi[label[u]]]
           < node_to_preorder_num[semi[label[v]]] then
@@ -1775,9 +1773,8 @@ DominatorTree := function(D, root)
   end;
 
   eval := function(v)
-    if lastlinked <= N and node_to_preorder_num[v] >=
+    if lastlinked <> fail and node_to_preorder_num[v] >=
         node_to_preorder_num[lastlinked] then
-      # ancestor[v] <> 0 then
       compress(v);
       return label[v];
     else
@@ -1810,7 +1807,6 @@ DominatorTree := function(D, root)
     fi;
     # link
     lastlinked := w;
-    # ancestor[w] := parent[w];
     label[w] := semi[w];
   od;
   for v in bucket[root] do
@@ -1829,7 +1825,7 @@ DominatorTree := function(D, root)
 end;
 
 Dominators2 := function(D, root)
-  local tree, preorder, N, result, u, v;
+  local tree, preorder, result, u, v;
   tree := DominatorTree(D, root);
   preorder := tree.preorder;
   tree := tree.idom;
