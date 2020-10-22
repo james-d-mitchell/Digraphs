@@ -1709,15 +1709,15 @@ function(D, root)
 end);
 
 DominatorTree := function(D, root)
-  local N, preorder, inverse, parent, index, next, current, succ, prev, n,
+  local N, node_to_preorder_num, preorder_num_to_node, parent, index, next, current, succ, prev, n,
   semi, ancestor, label, bucket, idom, compress, eval, pred, w, x, z, v, y, i;
 
   N := DigraphNrVertices(D);
-  # node -> preorder number
-  preorder := [];
-  preorder[root] := 1;
-  # preorder number -> node
-  inverse := [root];
+  # node -> node_to_preorder_num number
+  node_to_preorder_num := [];
+  node_to_preorder_num[root] := 1;
+  # node_to_preorder_num number -> node
+  preorder_num_to_node := [root];
 
   parent := [];
   parent[root] := fail;
@@ -1732,11 +1732,11 @@ DominatorTree := function(D, root)
     prev := current;
     for i in [index[current] .. Length(succ[current])] do
       n := succ[current][i];
-      if not IsBound(preorder[n]) then
-        Add(inverse, n);
+      if not IsBound(node_to_preorder_num[n]) then
+        Add(preorder_num_to_node, n);
         parent[n] := current;
         index[current] := i + 1;
-        preorder[n] := next;
+        node_to_preorder_num[n] := next;
         next := next + 1;
         current := n;
         break;
@@ -1748,8 +1748,10 @@ DominatorTree := function(D, root)
       current := parent[current];
     fi;
   until current = fail;
+  Print(node_to_preorder_num,  "\n");
+  Print(preorder_num_to_node,  "\n");
 
-  semi := ShallowCopy(preorder);
+  semi := [1 .. N];
   ancestor := ListWithIdenticalEntries(N, 0);
   label := [];
   bucket := List([1 .. N], x -> []);
@@ -1761,7 +1763,8 @@ DominatorTree := function(D, root)
     u := ancestor[v];
     if ancestor[u] <> 0 then
       compress(u);
-      if semi[label[u]] < semi[label[v]] then
+      if node_to_preorder_num[semi[label[u]]] 
+          < node_to_preorder_num[semi[label[v]]] then
         label[v] := label[u];
       fi;
       ancestor[v] := ancestor[u];
@@ -1780,22 +1783,20 @@ DominatorTree := function(D, root)
   pred := InNeighbours(D);
 
   for i in [N, N - 1 .. 2] do
-    w := inverse[i];
-    semi[w] := w;
-
+    w := preorder_num_to_node[i];
     for v in pred[w] do
       x := eval(v);
-      if semi[x] < semi[w] then
+      if node_to_preorder_num[semi[x]] < node_to_preorder_num[semi[w]] then
         semi[w] := semi[x];
       fi;
     od;
-    AddSet(bucket[semi[w]], w);
+    Add(bucket[semi[w]], w);
     ancestor[w] := parent[w];
     label[w] := semi[w];
     z := parent[w];
     for v in bucket[z] do
       y := eval(v);
-      if preorder[semi[y]] < preorder[z] then
+      if node_to_preorder_num[semi[y]] < node_to_preorder_num[z] then
         idom[v] := y;
       else
         idom[v] := z;
@@ -1831,6 +1832,7 @@ Dominators2 := function(D, root)
       Append(result[v], result[u]);
     fi;
   od;
+  Perform(result, Sort);
   return result;
 end;
 
