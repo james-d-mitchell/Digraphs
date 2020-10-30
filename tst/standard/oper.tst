@@ -2081,7 +2081,10 @@ gap> Dominators(D, 3);
 gap> D := ChainDigraph(10000);
 <immutable chain digraph with 10000 vertices>
 gap> Dominators(D, 1000000);
-Error, the 2nd argument <v> is not a vertex of the 1st argument <D>,
+Error, Error, the 2nd argument <root> is not a vertex of the 1st argument <D>,
+gap> D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);;
+gap> Dominators(D, 5);
+[ [  ], [ 2, 5 ], [  ], [ 2, 4, 5 ], [ 5 ] ]
 
 #DIGRAPHS_UnbindVariables
 gap> Unbind(a);
