@@ -1794,17 +1794,18 @@ DominatorTree := function(D, root)
   semi := [1 .. N];
   lastlinked := fail;  # never linked
   label := [];
-  bucket := ListWithIdenticalEntries(N, fail);
+  # bucket := ListWithIdenticalEntries(N, fail);
+  bucket := List([1 .. N], x -> []);
   idom := [];
   idom[root] := root;
 
-  add_to_bucket := function(bucket_nr, val)
-    i := bucket_nr;
-    while bucket[i] <> fail do
-      i := bucket[i];
-    od;
-    bucket[i] := val;
-  end;
+  # add_to_bucket := function(bucket_nr, val)
+  #   i := bucket_nr;
+  #   while bucket[i] <> fail do
+  #     i := bucket[i];
+  #   od;
+  #   bucket[i] := val;
+  # end;
 
   compress := function(v)
     local u;
@@ -1833,38 +1834,44 @@ DominatorTree := function(D, root)
   pred := InNeighbours(D);
   N := Length(preorder_num_to_node);
   for i in [N, N - 1 .. 2] do
-    Print(bucket, "\n");
     w := preorder_num_to_node[i];
-    v := bucket[w];
-    while v <> fail do
+    # v := bucket[w];
+    # while v <> fail do
+    for v in bucket[w] do
       y := eval(v);
       if node_to_preorder_num[semi[y]] < node_to_preorder_num[w] then
         idom[v] := y;
       else
         idom[v] := w;
       fi;
-      v := bucket[v];
+      # v := bucket[v];
     od;
     for v in pred[w] do
-      x := eval(v);
-      if node_to_preorder_num[semi[x]] < node_to_preorder_num[semi[w]] then
-        semi[w] := semi[x];
+      if IsBound(node_to_preorder_num[v]) then
+        # Node is reachable from root
+        x := eval(v);
+        if node_to_preorder_num[semi[x]] < node_to_preorder_num[semi[w]] then
+          semi[w] := semi[x];
+        fi;
       fi;
     od;
-    if parent[w] = semi[w] then
-      idom[w] := parent[w];
-    else
-      add_to_bucket(semi[w], w);
-    fi;
+    #if parent[w] = semi[w] then
+    #  idom[w] := parent[w];
+    #else
+    Add(bucket[semi[w]], w);
+    # add_to_bucket(semi[w], w);
+    #fi;
     # link
     lastlinked := w;
     label[w] := semi[w];
   od;
-  v := bucket[root];
-  while v <> fail do
+  for v in bucket[root] do
+  # v := bucket[root];
+  #while v <> fail do
     idom[v] := root;
-    v := bucket[v];
+    #v := bucket[v];
   od;
+  Error();
 
   # Step 3: finalize immediate dominators
   for i in [2 .. N] do
