@@ -2085,6 +2085,273 @@ Error, Error, the 2nd argument <root> is not a vertex of the 1st argument <D>,
 gap> D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);;
 gap> Dominators(D, 5);
 [ [  ], [ 2, 5 ], [  ], [ 2, 4, 5 ], [ 5 ] ]
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ] ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ], [ 5, 1 ] ]
+gap> Dominators(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 2, 3 ], [ 2, 4 ], [ 2, 5 ] ]
+gap> Dominators2(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 3, 2 ], [ 4, 2 ], [ 5, 2 ] ]
+gap> Dominators(D, 5);
+[ [ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ], [ 5 ] ]
+gap> Dominators2(D, 5);
+[ [ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ], [ 5 ] ]
+gap> D := CycleDigraph(10);
+<immutable cycle digraph with 10 vertices>
+gap> Dominators(D, 5);
+[ [ 1, 5, 6, 7, 8, 9, 10 ], [ 1, 2, 5, 6, 7, 8, 9, 10 ], 
+  [ 1, 2, 3, 5, 6, 7, 8, 9, 10 ], [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ], [ 5 ], 
+  [ 5, 6 ], [ 5, 6, 7 ], [ 5, 6, 7, 8 ], [ 5, 6, 7, 8, 9 ], 
+  [ 5, 6, 7, 8, 9, 10 ] ]
+gap> Dominators2(D, 5);
+[ [ 1, 10, 9, 8, 7, 6, 5 ], [ 2, 1, 10, 9, 8, 7, 6, 5 ], 
+  [ 3, 2, 1, 10, 9, 8, 7, 6, 5 ], [ 4, 3, 2, 1, 10, 9, 8, 7, 6, 5 ], [ 5 ], 
+  [ 6, 5 ], [ 7, 6, 5 ], [ 8, 7, 6, 5 ], [ 9, 8, 7, 6, 5 ], 
+  [ 10, 9, 8, 7, 6, 5 ] ]
+gap> D := Digraph([[3, 4], [1, 4], [2, 5], [3, 5], []]);
+<immutable digraph with 5 vertices, 8 edges>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2, 3 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ] ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 3, 1 ], [ 3, 1 ], [ 4, 1 ], [ 5, 1 ] ]
+gap> Dominators(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 2, 3 ], [ 2, 4 ], [ 2, 5 ] ]
+gap> Dominators2(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 3, 2 ], [ 4, 2 ], [ 5, 2 ] ]
+gap> Dominators(D, 3);
+[ [ 1, 2, 3 ], [ 2, 3 ], [ 3 ], [ 2, 3, 4 ], [ 3, 5 ] ]
+gap> Dominators2(D, 3);
+[ [ 1, 2, 3 ], [ 2, 3 ], [ 3 ], [ 4, 2, 3 ], [ 5, 3 ] ]
+gap> Dominators(D, 4);
+[ [ 1, 2, 3, 4 ], [ 2, 3, 4 ], [ 3, 4 ], [ 4 ], [ 4, 5 ] ]
+gap> Dominators2(D, 4);
+[ [ 1, 2, 3, 4 ], [ 2, 3, 4 ], [ 3, 4 ], [ 4 ], [ 5, 4 ] ]
+gap> Dominators(D, 5);
+[ [  ], [  ], [  ], [  ], [ 5 ] ]
+gap> Dominators2(D, 5);
+[ ,,,, [ 5 ] ]
+gap> d := Digraph([[2, 3], [4, 6], [4, 5], [3, 5], [1, 6], [2, 3]]);
+<immutable digraph with 6 vertices, 12 edges>
+gap> Dominators2(d, 5);
+[ [ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ], [ 5 ], [ 6, 5 ] ]
+gap> Dominators(d, 5);
+[ [ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ], [ 5 ], [ 5, 6 ] ]
+gap> Dominators(d, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 1, 6 ] ]
+gap> Dominators2(d, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ], [ 5, 1 ], [ 6, 1 ] ]
+gap> Dominators(d, 3);
+[ [ 1, 3, 5 ], [ 2, 3, 5 ], [ 3 ], [ 3, 4 ], [ 3, 5 ], [ 3, 5, 6 ] ]
+gap> Dominators2(d, 3);
+[ [ 1, 5, 3 ], [ 2, 5, 3 ], [ 3 ], [ 4, 3 ], [ 5, 3 ], [ 6, 5, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 1, 4, 5 ], [ 2, 4, 5 ], [ 3, 4 ], [ 4 ], [ 4, 5 ], [ 4, 5, 6 ] ]
+gap> Dominators2(d, 4);
+[ [ 1, 5, 4 ], [ 2, 5, 4 ], [ 3, 4 ], [ 4 ], [ 5, 4 ], [ 6, 5, 4 ] ]
+gap> Dominators(d, 6);
+[ [ 1, 5, 6 ], [ 2, 6 ], [ 3, 6 ], [ 4, 6 ], [ 5, 6 ], [ 6 ] ]
+gap> Dominators2(d, 6);
+[ [ 1, 5, 6 ], [ 2, 6 ], [ 3, 6 ], [ 4, 6 ], [ 5, 6 ], [ 6 ] ]
+gap> d := Digraph([[], [3], [4, 5], [2], [4]]);
+<immutable digraph with 5 vertices, 5 edges>
+gap> Dominators(d, 1);
+[ [ 1 ], [  ], [  ], [  ], [  ] ]
+gap> Dominators2(d, 1);
+[ [ 1 ] ]
+gap> Dominators(d, 2);
+[ [  ], [ 2 ], [ 2, 3 ], [ 2, 3, 4 ], [ 2, 3, 5 ] ]
+gap> Dominators2(d, 2);
+[ , [ 2 ], [ 3, 2 ], [ 4, 3, 2 ], [ 5, 3, 2 ] ]
+gap> Dominators(d, 3);
+[ [  ], [ 2, 3, 4 ], [ 3 ], [ 3, 4 ], [ 3, 5 ] ]
+gap> Dominators2(d, 3);
+[ , [ 2, 4, 3 ], [ 3 ], [ 4, 3 ], [ 5, 3 ] ]
+gap> Dominators(d, 4);
+[ [  ], [ 2, 4 ], [ 2, 3, 4 ], [ 4 ], [ 2, 3, 4, 5 ] ]
+gap> Dominators2(d, 4);
+[ , [ 2, 4 ], [ 3, 2, 4 ], [ 4 ], [ 5, 3, 2, 4 ] ]
+gap> Dominators(d, 5);
+[ [  ], [ 2, 4, 5 ], [ 2, 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+gap> Dominators2(d, 5);
+[ , [ 2, 4, 5 ], [ 3, 2, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+gap> D := Digraph([[2, 3, 5], [1, 6], [4, 6, 7], [7, 8], [4], [], [8], []]);
+<immutable digraph with 8 vertices, 12 edges>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 1, 6 ], [ 1, 7 ], [ 1, 8 ] 
+ ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ], [ 5, 1 ], [ 6, 1 ], [ 7, 1 ], [ 8, 1 ] 
+ ]
+gap> Dominators(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 1, 2, 3 ], [ 1, 2, 4 ], [ 1, 2, 5 ], [ 2, 6 ], 
+  [ 1, 2, 7 ], [ 1, 2, 8 ] ]
+gap> Dominators2(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 3, 1, 2 ], [ 4, 1, 2 ], [ 5, 1, 2 ], [ 6, 2 ], 
+  [ 7, 1, 2 ], [ 8, 1, 2 ] ]
+gap> Dominators(D, 3);
+[ [  ], [  ], [ 3 ], [ 3, 4 ], [  ], [ 3, 6 ], [ 3, 7 ], [ 3, 8 ] ]
+gap> Dominators2(D, 3);
+[ ,, [ 3 ], [ 4, 3 ],, [ 6, 3 ], [ 7, 3 ], [ 8, 3 ] ]
+gap> Dominators(D, 4);
+[ [  ], [  ], [  ], [ 4 ], [  ], [  ], [ 4, 7 ], [ 4, 8 ] ]
+gap> Dominators2(D, 4);
+[ ,,, [ 4 ],,, [ 7, 4 ], [ 8, 4 ] ]
+gap> Dominators(D, 5);
+[ [  ], [  ], [  ], [ 4, 5 ], [ 5 ], [  ], [ 4, 5, 7 ], [ 4, 5, 8 ] ]
+gap> Dominators2(D, 5);
+[ ,,, [ 4, 5 ], [ 5 ],, [ 7, 4, 5 ], [ 8, 4, 5 ] ]
+gap> Dominators(D, 6);
+[ [  ], [  ], [  ], [  ], [  ], [ 6 ], [  ], [  ] ]
+gap> Dominators2(D, 6);
+[ ,,,,, [ 6 ] ]
+gap> Dominators(D, 7);
+[ [  ], [  ], [  ], [  ], [  ], [  ], [ 7 ], [ 7, 8 ] ]
+gap> Dominators2(D, 7);
+[ ,,,,,, [ 7 ], [ 8, 7 ] ]
+gap> Dominators(D, 8);
+[ [  ], [  ], [  ], [  ], [  ], [  ], [  ], [ 8 ] ]
+gap> Dominators2(D, 8);
+[ ,,,,,,, [ 8 ] ]
+gap> d := Digraph([[2], [3, 6], [ 2, 4], [1], [], [3]]);
+<immutable digraph with 6 vertices, 7 edges>
+gap> Dominators(d, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 3, 4 ], [  ], [ 1, 2, 6 ] ]
+gap> Dominators2(d, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 2, 1 ], [ 4, 3, 2, 1 ],, [ 6, 2, 1 ] ]
+gap> Dominators(d, 2);
+[ [ 1, 2, 3, 4 ], [ 2 ], [ 2, 3 ], [ 2, 3, 4 ], [  ], [ 2, 6 ] ]
+gap> Dominators2(d, 2);
+[ [ 1, 4, 3, 2 ], [ 2 ], [ 3, 2 ], [ 4, 3, 2 ],, [ 6, 2 ] ]
+gap> Dominators(d, 3);
+[ [ 1, 3, 4 ], [ 2, 3 ], [ 3 ], [ 3, 4 ], [  ], [ 2, 3, 6 ] ]
+gap> Dominators2(d, 3);
+[ [ 1, 4, 3 ], [ 2, 3 ], [ 3 ], [ 4, 3 ],, [ 6, 2, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 1, 4 ], [ 1, 2, 4 ], [ 1, 2, 3, 4 ], [ 4 ], [  ], [ 1, 2, 4, 6 ] ]
+gap> Dominators2(d, 4);
+[ [ 1, 4 ], [ 2, 1, 4 ], [ 3, 2, 1, 4 ], [ 4 ],, [ 6, 2, 1, 4 ] ]
+gap> Dominators(d, 5);
+[ [  ], [  ], [  ], [  ], [ 5 ], [  ] ]
+gap> Dominators2(d, 5);
+[ ,,,, [ 5 ] ]
+gap> Dominators(d, 6);
+[ [ 1, 3, 4, 6 ], [ 2, 3, 6 ], [ 3, 6 ], [ 3, 4, 6 ], [  ], [ 6 ] ]
+gap> Dominators2(d, 6);
+[ [ 1, 4, 3, 6 ], [ 2, 3, 6 ], [ 3, 6 ], [ 4, 3, 6 ],, [ 6 ] ]
+gap> d := Digraph([[1, 2, 3], [4, 5], [1, 3], [3, 5], [4]]);
+<immutable digraph with 5 vertices, 10 edges>
+gap> Dominators(d, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 2, 4 ], [ 1, 2, 5 ] ]
+gap> Dominators2(d, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 2, 1 ], [ 5, 2, 1 ] ]
+gap> Dominators(d, 2);
+[ [ 1, 2, 3, 4 ], [ 2 ], [ 2, 3, 4 ], [ 2, 4 ], [ 2, 5 ] ]
+gap> Dominators2(d, 2);
+[ [ 1, 3, 4, 2 ], [ 2 ], [ 3, 4, 2 ], [ 4, 2 ], [ 5, 2 ] ]
+gap> Dominators(d, 3);
+[ [ 1, 3 ], [ 1, 2, 3 ], [ 3 ], [ 1, 2, 3, 4 ], [ 1, 2, 3, 5 ] ]
+gap> Dominators2(d, 3);
+[ [ 1, 3 ], [ 2, 1, 3 ], [ 3 ], [ 4, 2, 1, 3 ], [ 5, 2, 1, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 1, 3, 4 ], [ 1, 2, 3, 4 ], [ 3, 4 ], [ 4 ], [ 4, 5 ] ]
+gap> Dominators2(d, 4);
+[ [ 1, 3, 4 ], [ 2, 1, 3, 4 ], [ 3, 4 ], [ 4 ], [ 5, 4 ] ]
+gap> Dominators(d, 5);
+[ [ 1, 3, 4, 5 ], [ 1, 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+gap> Dominators2(d, 5);
+[ [ 1, 3, 4, 5 ], [ 2, 1, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+gap>  D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);
+<immutable digraph with 5 vertices, 7 edges>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 2, 4 ], [ 1, 3, 5 ] ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 2, 1 ], [ 5, 3, 1 ] ]
+gap> Dominators(D, 2);
+[ [  ], [ 2 ], [  ], [ 2, 4 ], [  ] ]
+gap> Dominators2(D, 2);
+[ , [ 2 ],, [ 4, 2 ] ]
+gap> Dominators(D, 3);
+[ [ 1, 3 ], [ 2, 3 ], [ 3 ], [ 2, 3, 4 ], [ 3, 5 ] ]
+gap> Dominators2(D, 3);
+[ [ 1, 3 ], [ 2, 3 ], [ 3 ], [ 4, 2, 3 ], [ 5, 3 ] ]
+gap> Dominators(D, 4);
+[ [  ], [  ], [  ], [ 4 ], [  ] ]
+gap> Dominators2(D, 4);
+[ ,,, [ 4 ] ]
+gap> Dominators(D, 5);
+[ [  ], [ 2, 5 ], [  ], [ 2, 4, 5 ], [ 5 ] ]
+gap> Dominators2(D, 5);
+[ , [ 2, 5 ],, [ 4, 2, 5 ], [ 5 ] ]
+gap> D := EmptyDigraph(15);
+<immutable empty digraph with 15 vertices>
+gap> Dominators(D, 3);
+[ [  ], [  ], [ 3 ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], [  ], 
+  [  ], [  ], [  ] ]
+gap> Dominators2(D, 3);
+[ ,, [ 3 ] ]
+gap> D := Digraph(IsMutableDigraph, [[1, 2, 3], [4], [1, 5], [], [2]]);
+<mutable digraph with 5 vertices, 7 edges>
+gap> Dominators(D, 5);
+[ [  ], [ 2, 5 ], [  ], [ 2, 4, 5 ], [ 5 ] ]
+gap> Dominators2(D, 5);
+[ , [ 2, 5 ],, [ 4, 2, 5 ], [ 5 ] ]
+gap> Dominators(D, 4);
+[ [  ], [  ], [  ], [ 4 ], [  ] ]
+gap> Dominators2(D, 4);
+[ ,,, [ 4 ] ]
+gap> Dominators2(D, 3);
+[ [ 1, 3 ], [ 2, 3 ], [ 3 ], [ 4, 2, 3 ], [ 5, 3 ] ]
+gap> Dominators(D, 3);
+[ [ 1, 3 ], [ 2, 3 ], [ 3 ], [ 2, 3, 4 ], [ 3, 5 ] ]
+gap> Dominators(D, 2);
+[ [  ], [ 2 ], [  ], [ 2, 4 ], [  ] ]
+gap> Dominators2(D, 2);
+[ , [ 2 ],, [ 4, 2 ] ]
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 2, 4 ], [ 1, 3, 5 ] ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 2, 1 ], [ 5, 3, 1 ] ]
+gap> D := Digraph(IsMutableDigraph, [[2, 3, 5], [1, 6], [4, 6, 7], [7, 8], [4], [], [8], []]);
+<mutable digraph with 8 vertices, 12 edges>
+gap> Dominators(D, 1);
+[ [ 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], [ 1, 6 ], [ 1, 7 ], [ 1, 8 ] 
+ ]
+gap> Dominators2(D, 1);
+[ [ 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ], [ 5, 1 ], [ 6, 1 ], [ 7, 1 ], [ 8, 1 ] 
+ ]
+gap> Dominators(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 1, 2, 3 ], [ 1, 2, 4 ], [ 1, 2, 5 ], [ 2, 6 ], 
+  [ 1, 2, 7 ], [ 1, 2, 8 ] ]
+gap> Dominators2(D, 2);
+[ [ 1, 2 ], [ 2 ], [ 3, 1, 2 ], [ 4, 1, 2 ], [ 5, 1, 2 ], [ 6, 2 ], 
+  [ 7, 1, 2 ], [ 8, 1, 2 ] ]
+gap> Dominators(D, 3);
+[ [  ], [  ], [ 3 ], [ 3, 4 ], [  ], [ 3, 6 ], [ 3, 7 ], [ 3, 8 ] ]
+gap> Dominators2(D, 3);
+[ ,, [ 3 ], [ 4, 3 ],, [ 6, 3 ], [ 7, 3 ], [ 8, 3 ] ]
+gap> Dominators(D, 4);
+[ [  ], [  ], [  ], [ 4 ], [  ], [  ], [ 4, 7 ], [ 4, 8 ] ]
+gap> Dominators2(D, 4);
+[ ,,, [ 4 ],,, [ 7, 4 ], [ 8, 4 ] ]
+gap> Dominators(D, 5);
+[ [  ], [  ], [  ], [ 4, 5 ], [ 5 ], [  ], [ 4, 5, 7 ], [ 4, 5, 8 ] ]
+gap> Dominators2(D, 5);
+[ ,,, [ 4, 5 ], [ 5 ],, [ 7, 4, 5 ], [ 8, 4, 5 ] ]
+gap> Dominators(D, 6);
+[ [  ], [  ], [  ], [  ], [  ], [ 6 ], [  ], [  ] ]
+gap> Dominators2(D, 6);
+[ ,,,,, [ 6 ] ]
+gap> Dominators(D, 7);
+[ [  ], [  ], [  ], [  ], [  ], [  ], [ 7 ], [ 7, 8 ] ]
+gap> Dominators2(D, 7);
+[ ,,,,,, [ 7 ], [ 8, 7 ] ]
+gap> Dominators(D, 8);
+[ [  ], [  ], [  ], [  ], [  ], [  ], [  ], [ 8 ] ]
+gap> Dominators2(D, 8);
+[ ,,,,,,, [ 8 ] ]
 
 #DIGRAPHS_UnbindVariables
 gap> Unbind(a);
