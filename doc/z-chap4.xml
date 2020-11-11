@@ -62,6 +62,7 @@
     <#Include Label="IsReachable">
     <#Include Label="DigraphPath">
     <#Include Label="DigraphShortestPath">
+    <#Include Label="Dominators2">
     <#Include Label="IteratorOfPaths">
     <#Include Label="DigraphAllSimpleCircuits">
     <#Include Label="DigraphLongestSimpleCircuit">
