@@ -1671,86 +1671,90 @@ function(D, list)
   return DigraphShortestDistance(D, list[1], list[2]);
 end);
 
-InstallMethod(Dominators, "for a digraph and vertex",
+# This function is left here only for testing purposes, for the
+# faster version of dominators.
+# InstallMethod(DominatorsQuadratic, "for a digraph and vertex",
+# [IsDigraph, IsPosInt],
+# function(D, root)
+#   local N, seen, parent, index, next, current, succ, prev, n, comp,
+#   predecessors, dominators, changes, intersection, i, v, pred;
+
+   # Figure out what nodes are reachable from the root
+   # TODO this should be a separate function VerticesReachableFrom?
+#   N := DigraphNrVertices(D);
+
+#   if root > N then
+#     ErrorNoReturn("Error, the 2nd argument <root> is not a ",
+#                   "vertex of the 1st argument <D>,");
+#   fi;
+
+#   seen := BlistList([1 .. N], [root]);
+
+#   parent := [];
+#   parent[root] := fail;
+#   index := ListWithIdenticalEntries(N, 1);
+
+#   next := 2;
+#   current := root;
+#   succ := OutNeighbours(D);
+
+   # Step 1: DFS to establish preorder
+#   repeat
+#     prev := current;
+#     for i in [index[current] .. Length(succ[current])] do
+#       n := succ[current][i];
+#       if not seen[n] then
+#         seen[n] := true;
+#         parent[n] := current;
+#         index[current] := i + 1;
+#         next := next + 1;
+#         current := n;
+#         break;
+#       fi;
+#     od;
+      # continues from here
+#     if prev = current then
+      # we backtrack
+#       current := parent[current];
+#     fi;
+#   until current = fail;
+
+#   comp         := ListBlist([1 .. N], seen);
+#   predecessors := InNeighbours(D);
+
+#   dominators   := List(DigraphVertices(D), x -> []);
+#   dominators{comp} := List(comp, x -> ShallowCopy(comp));
+#   dominators[root] := [root];
+
+#   repeat
+#     changes := false;
+#     for v in comp do
+#       if v <> root then
+#         if not IsEmpty(predecessors[v]) then
+#           intersection := ShallowCopy(comp);
+#           for pred in predecessors[v] do
+#             if seen[pred] then
+#               IntersectSet(intersection, dominators[pred]);
+#             fi;
+#           od;
+#         else
+#           intersection := [];
+#         fi;
+
+#         AddSet(intersection, v);
+#         if intersection <> dominators[v] then
+#           changes       := true;
+#           dominators[v] := intersection;
+#         fi;
+#       fi;
+#     od;
+#   until changes = false;
+#   return dominators;
+# end);
+
+InstallMethod(DominatorTree, "for a digraph and a vertex",
 [IsDigraph, IsPosInt],
 function(D, root)
-  local N, seen, parent, index, next, current, succ, prev, n, comp,
-  predecessors, dominators, changes, intersection, i, v, pred;
-
-  # Figure out what nodes are reachable from the root
-  # TODO this should be a separate function VerticesReachableFrom?
-  N := DigraphNrVertices(D);
-
-  if root > N then
-    ErrorNoReturn("Error, the 2nd argument <root> is not a ",
-                  "vertex of the 1st argument <D>,");
-  fi;
-
-  seen := BlistList([1 .. N], [root]);
-
-  parent := [];
-  parent[root] := fail;
-  index := ListWithIdenticalEntries(N, 1);
-
-  next := 2;
-  current := root;
-  succ := OutNeighbours(D);
-
-  # Step 1: DFS to establish preorder
-  repeat
-    prev := current;
-    for i in [index[current] .. Length(succ[current])] do
-      n := succ[current][i];
-      if not seen[n] then
-        seen[n] := true;
-        parent[n] := current;
-        index[current] := i + 1;
-        next := next + 1;
-        current := n;
-        break;
-      fi;
-    od;
-    # continues from here
-    if prev = current then
-      # we backtrack
-      current := parent[current];
-    fi;
-  until current = fail;
-
-  comp         := ListBlist([1 .. N], seen);
-  predecessors := InNeighbours(D);
-
-  dominators   := List(DigraphVertices(D), x -> []);
-  dominators{comp} := List(comp, x -> ShallowCopy(comp));
-  dominators[root] := [root];
-
-  repeat
-    changes := false;
-    for v in comp do
-      if v <> root then
-        if not IsEmpty(predecessors[v]) then
-          intersection := ShallowCopy(comp);
-          for pred in predecessors[v] do
-            if seen[pred] then
-              IntersectSet(intersection, dominators[pred]);
-            fi;
-          od;
-        else
-          intersection := [];
-        fi;
-
-        AddSet(intersection, v);
-        if intersection <> dominators[v] then
-          changes       := true;
-          dominators[v] := intersection;
-        fi;
-      fi;
-    od;
-  until changes = false;
-  return dominators;
-end);
-
-DominatorTree := function(D, root)
   local N, node_to_preorder_num, preorder_num_to_node, parent, index, next,
   current, succ, prev, n, semi, lastlinked, label, ancestor, bucket, idom,
   compress, eval, pred, w, y, x, i, v;
@@ -1878,9 +1882,11 @@ DominatorTree := function(D, root)
   od;
   idom[root] := fail;
   return rec(idom := idom, preorder := preorder_num_to_node, sdom := semi);
-end;
+end);
 
-Dominators2 := function(D, root)
+InstallMethod(Dominators, "for a digraph and a vertex",
+[IsDigraph, IsPosInt],
+function(D, root)
   local tree, preorder, result, u, v;
   tree := DominatorTree(D, root);
   preorder := tree.preorder;
@@ -1895,7 +1901,7 @@ Dominators2 := function(D, root)
   od;
   # Perform(result, Sort);
   return result;
-end;
+end);
 
 #############################################################################
 # 10. Operations for vertices
