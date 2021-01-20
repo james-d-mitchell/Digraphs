@@ -48,3 +48,7 @@ DeclareOperation("PetersenGraph", [IsFunction]);
 DeclareConstructor("GeneralisedPetersenGraphCons", [IsDigraph, IsInt, IsInt]);
 DeclareOperation("GeneralisedPetersenGraph", [IsInt, IsInt]);
 DeclareOperation("GeneralisedPetersenGraph", [IsFunction, IsInt, IsInt]);
+
+DeclareConstructor("FolkmanGraphCons", [IsDigraph]);
+DeclareOperation("FolkmanGraph", []);
+DeclareOperation("FolkmanGraph", [IsFunction]);

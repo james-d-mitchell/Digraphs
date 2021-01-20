@@ -370,3 +370,18 @@ GeneralisedPetersenGraphCons);
 
 InstallMethod(GeneralisedPetersenGraph, "for integer, integer", [IsInt, IsInt],
 {n, k} -> GeneralisedPetersenGraphCons(IsImmutableDigraph, n, k));
+
+InstallMethod(FolkmanGraphCons, "for IsMutableDigraph", [IsMutableDigraph],
+function(filt)
+  return DigraphFromGraph6String(IsMutableDigraph,
+                                 "Sl?gHS?_g?oTS?AA_?GOT@O??_i_?G@@S");
+end);
+
+InstallMethod(FolkmanGraphCons, "for IsImmutableDigraph", [IsImmutableDigraph],
+filt -> MakeImmutable(FolkmanGraphCons(IsMutableDigraph)));
+
+InstallMethod(FolkmanGraph, [],
+{} -> FolkmanGraphCons(IsImmutableDigraph));
+
+InstallMethod(FolkmanGraph, "for a function", [IsFunction],
+filt -> FolkmanGraphCons(filt));
