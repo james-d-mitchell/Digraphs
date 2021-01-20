@@ -226,6 +226,18 @@ Error, the arguments <n> and <k> must be non-negative integers,
 gap> JohnsonDigraph(IsMutableDigraph, 4, 2);
 <mutable digraph with 6 vertices, 24 edges>
 
+#  Folkman
+gap> D := FolkmanGraph();
+<immutable digraph with 20 vertices, 80 edges>
+gap> DigraphNrVertices(D) = 20;
+true
+gap> DigraphNrEdges(D) = 80;
+true
+gap> Size(AutomorphismGroup(D)) = 3840;
+true
+gap> D := FolkmanGraph(IsMutableDigraph);
+<mutable digraph with 20 vertices, 80 edges>
+
 #
 gap> DIGRAPHS_StopTest();
 gap> STOP_TEST("Digraphs package: standard/examples.tst", 0);
