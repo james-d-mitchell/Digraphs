@@ -435,6 +435,10 @@ InstallMethod(Digraph, "for a string naming a graph", [IsString],
 function(name)
   local f, r;
 
+  if name = "" then
+    TryNextMethod();
+  fi;
+
   LowercaseString(name);
   RemoveCharacters(name, " \n\t\r");
 
