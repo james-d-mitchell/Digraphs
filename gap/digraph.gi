@@ -434,8 +434,9 @@ InstallMethod(Digraph, "for a list, list, and list", [IsList, IsList, IsList],
 InstallMethod(Digraph, "for a string naming a graph", [IsString],
 function(name)
   local f, r;
-
-  # TODO: Tolerate arbitrary capitalisation, and whitespace
+  
+  LowercaseString(name);
+  RemoveCharacters(name, " \n\t\r");  # Removes all kinds of whitespace
 
   # TODO: Read the record from a file, if it hasn't already been read.
   if DIGRAPHS_NamedGraph6String = fail then
@@ -450,7 +451,9 @@ function(name)
     MakeReadOnlyGlobal("DIGRAPHS_NamedGraph6String");
   fi;
 
-  # TODO Check the name "s" exists in the DIGRAPHS_NamedGraph6String
+  if not name in RecNames(DIGRAPHS_NamedGraph6String) then
+    ErrorNoReturn("Named graph not found. Please check argument 'name'.");
+  fi;
   return DigraphFromGraph6String(DIGRAPHS_NamedGraph6String.(name));
 end);
 
