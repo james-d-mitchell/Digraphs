@@ -434,21 +434,19 @@ InstallMethod(Digraph, "for a list, list, and list", [IsList, IsList, IsList],
 InstallMethod(Digraph, "for a string naming a graph", [IsString],
 function(name)
   local f, r;
-  
-  LowercaseString(name);
-  RemoveCharacters(name, " \n\t\r");  # Removes all kinds of whitespace
 
-  # TODO: Read the record from a file, if it hasn't already been read.
+  LowercaseString(name);
+  RemoveCharacters(name, " \n\t\r");
+
   if DIGRAPHS_NamedGraph6String = fail then
     f := Concatenation(DIGRAPHS_Dir(), "/data/named-g6.p.gz");
     f := IO_CompressedFile(f, "r");
     r := IO_Unpickle(f);
     IO_Close(f);
-    # TODO: figure out better way of doing this, so that it doesn't give
-    # warnings
+
     MakeReadWriteGlobal("DIGRAPHS_NamedGraph6String");
+    UnbindGlobal("DIGRAPHS_NamedGraph6String");
     BindGlobal("DIGRAPHS_NamedGraph6String", r);
-    MakeReadOnlyGlobal("DIGRAPHS_NamedGraph6String");
   fi;
 
   if not name in RecNames(DIGRAPHS_NamedGraph6String) then
