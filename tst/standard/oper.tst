@@ -335,8 +335,10 @@ Error, the 2nd argument <partition> is not a valid partition of the vertices [\
 1 .. 3] of the 1st argument <D>,
 gap> gr := Digraph(rec(
 > DigraphNrVertices := 8,
-> DigraphSource := [1, 1, 2, 2, 3, 4, 4, 4, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 8, 8],
-> DigraphRange := [6, 7, 1, 6, 5, 1, 4, 8, 1, 3, 4, 6, 7, 7, 1, 4, 5, 6, 7, 5, 6]));
+> DigraphSource := [1, 1, 2, 2, 3, 4, 4, 4, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 8,
+>                   8],
+> DigraphRange := [6, 7, 1, 6, 5, 1, 4, 8, 1, 3, 4, 6, 7, 7, 1, 4, 5, 6, 7, 5,
+>                  6]));
 <immutable digraph with 8 vertices, 21 edges>
 gap> qr := QuotientDigraph(gr, [[1], [2, 3, 5, 7], [4, 6, 8]]);
 <immutable digraph with 3 vertices, 8 edges>
@@ -354,8 +356,9 @@ gap> DigraphOutEdges(gr, 5);
 Error, the 2nd argument <v> is not a vertex of the 1st argument <D>,
 gap> DigraphInEdges(gr, 1000);
 Error, the 2nd argument <v> is not a vertex of the 1st argument <D>,
-gap> gr := Digraph(rec(DigraphVertices := ["a", "b", "c"], DigraphSource := ["a", "a", "b"],
-> DigraphRange := ["b", "b", "c"]));
+gap> gr := Digraph(rec(DigraphVertices := ["a", "b", "c"],
+>                      DigraphSource   := ["a", "a", "b"],
+>                      DigraphRange    := ["b", "b", "c"]));
 <immutable multidigraph with 3 vertices, 3 edges>
 gap> DigraphInEdges(gr, 1);
 [  ]
@@ -427,7 +430,9 @@ gap> IsDigraphEdge(gr, [1000, 1]);
 true
 gap> IsDigraphEdge(gr, [1000, 600]);
 false
-gap> gr := Digraph(rec(DigraphNrVertices := 2, DigraphSource := [1], DigraphRange := [2]));
+gap> gr := Digraph(rec(DigraphNrVertices := 2,
+>                      DigraphSource     := [1],
+>                      DigraphRange      := [2]));
 <immutable digraph with 2 vertices, 1 edge>
 gap> IsDigraphEdge(gr, [2, 1]);
 false
@@ -593,7 +598,9 @@ gap> gr2 := DigraphAddVertices(gr, [SymmetricGroup(2), Group(())]);
 <immutable digraph with 3 vertices, 1 edge>
 gap> DigraphVertexLabels(gr2);
 [ Alt( [ 1 .. 5 ] ), Sym( [ 1 .. 2 ] ), Group(()) ]
-gap> gr := Digraph(rec(DigraphNrVertices := 1, DigraphSource := [1], DigraphRange := [1]));
+gap> gr := Digraph(rec(DigraphNrVertices := 1,
+>                      DigraphSource     := [1],
+>                      DigraphRange      := [1]));
 <immutable digraph with 1 vertex, 1 edge>
 gap> gr2 := DigraphAddVertices(gr, 2);
 <immutable digraph with 3 vertices, 1 edge>
@@ -604,12 +611,16 @@ gap> gr2 := DigraphAddVertices(gr, 2);
 <immutable digraph with 3 vertices, 1 edge>
 gap> DigraphVertexLabels(gr2);
 [ true, 2, 3 ]
-gap> gr := Digraph(rec(DigraphNrVertices := 1, DigraphSource := [1], DigraphRange := [1]));;
+gap> gr := Digraph(rec(DigraphNrVertices := 1,
+>                      DigraphSource     := [1],
+>                      DigraphRange      := [1]));;
 gap> gr2 := DigraphAddVertices(gr, [SymmetricGroup(2), Group(())]);
 <immutable digraph with 3 vertices, 1 edge>
 gap> DigraphVertexLabels(gr2);
 [ 1, Sym( [ 1 .. 2 ] ), Group(()) ]
-gap> gr := Digraph(rec(DigraphNrVertices := 1, DigraphSource := [1], DigraphRange := [1]));;
+gap> gr := Digraph(rec(DigraphNrVertices := 1,
+>                      DigraphSource     := [1],
+>                      DigraphRange      := [1]));;
 gap> SetDigraphVertexLabels(gr, [AlternatingGroup(5)]);
 gap> gr2 := DigraphAddVertices(gr, [SymmetricGroup(2), Group(())]);
 <immutable digraph with 3 vertices, 1 edge>
@@ -1764,11 +1775,85 @@ gap> DigraphShortestPath(gr, 1, 2);
 [ [ 1, 2 ], [ 1 ] ]
 gap> gr := CayleyDigraph(SymmetricGroup(7));;
 gap> DigraphShortestPath(gr, 12, 5014);
-[ [ 12, 912, 1919, 3595, 4915, 3433, 4153, 3242, 2522, 2886, 23, 743, 238, 
-      1558, 713, 5014 ], [ 2, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2 ] ]
+[ [ 12, 878, 158, 1029, 1875, 1881, 2754, 3498, 3522, 3642, 4508, 4388, 68, 
+      788, 1634, 2505, 3249, 3273, 4146, 5012, 5014 ], 
+  [ 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 1 ] ]
+
+# IsReachableFrom
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 1, 3, 4, 5 ]
+gap> VerticesReachableFrom(D, 3);
+[ 1, 2, 3, 4, 5 ]
+gap> D := EmptyDigraph(5);
+<immutable empty digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[  ]
+gap> VerticesReachableFrom(D, 3);
+[  ]
+gap> D := CycleDigraph(4);
+<immutable cycle digraph with 4 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 3, 4, 1 ]
+gap> VerticesReachableFrom(D, 3);
+[ 4, 1, 2, 3 ]
+gap> D := ChainDigraph(5);
+<immutable chain digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 3, 4, 5 ]
+gap> VerticesReachableFrom(D, 3);
+[ 4, 5 ]
+gap> VerticesReachableFrom(D, 5);
+[  ]
+gap> D := Digraph([[2, 3, 5], [1, 6], [4, 6, 7], [7, 8], [4], [], [8, 6], []]);
+<immutable digraph with 8 vertices, 13 edges>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 1, 6, 3, 4, 7, 8, 5 ]
+gap> VerticesReachableFrom(D, 2);
+[ 1, 2, 3, 4, 7, 8, 6, 5 ]
+gap> VerticesReachableFrom(D, 3);
+[ 4, 7, 8, 6 ]
+gap> VerticesReachableFrom(D, 4);
+[ 7, 8, 6 ]
+gap> VerticesReachableFrom(D, 5);
+[ 4, 7, 8, 6 ]
+gap> VerticesReachableFrom(D, 6);
+[  ]
+gap> VerticesReachableFrom(D, 7);
+[ 8, 6 ]
+gap> VerticesReachableFrom(D, 8);
+[  ]
+gap> D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);
+<immutable digraph with 5 vertices, 7 edges>
+gap> VerticesReachableFrom(D, 1);
+[ 1, 2, 4, 3, 5 ]
+gap> VerticesReachableFrom(D, 2);
+[ 4 ]
+gap> VerticesReachableFrom(D, 3);
+[ 1, 2, 4, 3, 5 ]
+gap> VerticesReachableFrom(D, 4);
+[  ]
+gap> VerticesReachableFrom(D, 5);
+[ 2, 4 ]
+gap> D := Digraph(IsMutableDigraph, [[1, 2, 3], [4], [1, 5], [], [2]]);
+<mutable digraph with 5 vertices, 7 edges>
+gap> VerticesReachableFrom(D, 1);
+[ 1, 2, 4, 3, 5 ]
+gap> VerticesReachableFrom(D, 2);
+[ 4 ]
+gap> VerticesReachableFrom(D, 3);
+[ 1, 2, 4, 3, 5 ]
+gap> VerticesReachableFrom(D, 4);
+[  ]
+gap> VerticesReachableFrom(D, 5);
+[ 2, 4 ]
+gap> D;
+<mutable digraph with 5 vertices, 7 edges>
 
 # DigraphAddAllLoops - mutable
-gap> D := Digraph(IsMutableDigraph, [[1], [3, 4], [5, 6], [4, 2, 3], [4, 5], [1]]);
+gap> D := Digraph(IsMutableDigraph,
+> [[1], [3, 4], [5, 6], [4, 2, 3], [4, 5], [1]]);
 <mutable digraph with 6 vertices, 11 edges>
 gap> DigraphAddAllLoops(D);
 <mutable digraph with 6 vertices, 14 edges>
@@ -1928,7 +2013,8 @@ gap> DigraphCartesianProduct(D, D, D);
 <mutable digraph with 27 vertices, 81 edges>
 gap> D := DigraphMutableCopy(CycleDigraph(3));
 <mutable digraph with 3 vertices, 3 edges>
-gap> DigraphCartesianProduct(D, CycleDigraph(3), CycleDigraph(3), CycleDigraph(3));
+gap> DigraphCartesianProduct(
+> D, CycleDigraph(3), CycleDigraph(3), CycleDigraph(3));
 <mutable digraph with 81 vertices, 324 edges>
 gap> D := DigraphCartesianProduct(ChainDigraph(3), CycleDigraph(3));
 <immutable digraph with 9 vertices, 15 edges>
@@ -2002,8 +2088,7 @@ gap> OutNeighbours(C);
 [ [ 5, 6, 7 ], [ 7 ], [ 7 ], [ 7 ], [ 1, 6, 7 ], [ 1, 5, 7 ], 
   [ 3, 2, 1, 6, 5, 4 ] ]
 
-#DigraphDijkstra
-# When there is one path to target
+# DigraphDijkstra - when there is one path to target
 gap> mat := [[0, 1, 1], [0, 0, 1], [0, 0, 0]];
 [ [ 0, 1, 1 ], [ 0, 0, 1 ], [ 0, 0, 0 ] ]
 gap> gr := DigraphByAdjacencyMatrix(mat);
@@ -2043,10 +2128,337 @@ gap> DigraphDijkstra(gr, 1, 2);
 gap> DigraphDijkstra(gr, 1, 3);
 [ [ 0, 1, 1, 1 ], [ -1, 1, 1, 1 ] ]
 
+# ModularProduct
+gap> ModularProduct(NullDigraph(0), CompleteDigraph(10));
+<immutable empty digraph with 0 vertices>
+gap> ModularProduct(PetersenGraph(), CompleteDigraph(10));
+<immutable digraph with 100 vertices, 2800 edges>
+gap> ModularProduct(NullDigraph(10), CompleteDigraph(10));
+<immutable digraph with 100 vertices, 100 edges>
+gap> ModularProduct(Digraph([[1], [1, 2]]), Digraph([[], [2]]));
+<immutable digraph with 4 vertices, 4 edges>
+gap> OutNeighbours(last);
+[ [ 4 ], [ 2, 3 ], [  ], [ 4 ] ]
+gap> ModularProduct(PetersenGraph(), DigraphSymmetricClosure(CycleDigraph(5)));
+<immutable digraph with 50 vertices, 950 edges>
+gap> OutNeighbours(last);
+[ [ 7, 10, 22, 25, 27, 30, 1, 13, 14, 18, 19, 33, 34, 38, 39, 43, 44, 48, 49 ]
+    , [ 6, 8, 21, 23, 26, 28, 2, 14, 15, 19, 20, 34, 35, 39, 40, 44, 45, 49, 
+      50 ], 
+  [ 7, 9, 22, 24, 27, 29, 3, 11, 15, 16, 20, 31, 35, 36, 40, 41, 45, 46, 50 ],
+  [ 8, 10, 23, 25, 28, 30, 4, 11, 12, 16, 17, 31, 32, 36, 37, 41, 42, 46, 47 ]
+    , [ 6, 9, 21, 24, 26, 29, 5, 12, 13, 17, 18, 32, 33, 37, 38, 42, 43, 47, 
+      48 ], 
+  [ 2, 5, 12, 15, 32, 35, 6, 18, 19, 23, 24, 28, 29, 38, 39, 43, 44, 48, 49 ],
+  [ 1, 3, 11, 13, 31, 33, 7, 19, 20, 24, 25, 29, 30, 39, 40, 44, 45, 49, 50 ],
+  [ 2, 4, 12, 14, 32, 34, 8, 16, 20, 21, 25, 26, 30, 36, 40, 41, 45, 46, 50 ],
+  [ 3, 5, 13, 15, 33, 35, 9, 16, 17, 21, 22, 26, 27, 36, 37, 41, 42, 46, 47 ],
+  [ 1, 4, 11, 14, 31, 34, 10, 17, 18, 22, 23, 27, 28, 37, 38, 42, 43, 47, 48 ]
+    , [ 7, 10, 17, 20, 37, 40, 3, 4, 11, 23, 24, 28, 29, 33, 34, 43, 44, 48, 
+      49 ], [ 6, 8, 16, 18, 36, 38, 4, 5, 12, 24, 25, 29, 30, 34, 35, 44, 45, 
+      49, 50 ], 
+  [ 7, 9, 17, 19, 37, 39, 1, 5, 13, 21, 25, 26, 30, 31, 35, 41, 45, 46, 50 ], 
+  [ 8, 10, 18, 20, 38, 40, 1, 2, 14, 21, 22, 26, 27, 31, 32, 41, 42, 46, 47 ],
+  [ 6, 9, 16, 19, 36, 39, 2, 3, 15, 22, 23, 27, 28, 32, 33, 42, 43, 47, 48 ], 
+  [ 12, 15, 22, 25, 42, 45, 3, 4, 8, 9, 16, 28, 29, 33, 34, 38, 39, 48, 49 ], 
+  [ 11, 13, 21, 23, 41, 43, 4, 5, 9, 10, 17, 29, 30, 34, 35, 39, 40, 49, 50 ],
+  [ 12, 14, 22, 24, 42, 44, 1, 5, 6, 10, 18, 26, 30, 31, 35, 36, 40, 46, 50 ],
+  [ 13, 15, 23, 25, 43, 45, 1, 2, 6, 7, 19, 26, 27, 31, 32, 36, 37, 46, 47 ], 
+  [ 11, 14, 21, 24, 41, 44, 2, 3, 7, 8, 20, 27, 28, 32, 33, 37, 38, 47, 48 ], 
+  [ 2, 5, 17, 20, 47, 50, 8, 9, 13, 14, 21, 28, 29, 33, 34, 38, 39, 43, 44 ], 
+  [ 1, 3, 16, 18, 46, 48, 9, 10, 14, 15, 22, 29, 30, 34, 35, 39, 40, 44, 45 ],
+  [ 2, 4, 17, 19, 47, 49, 6, 10, 11, 15, 23, 26, 30, 31, 35, 36, 40, 41, 45 ],
+  [ 3, 5, 18, 20, 48, 50, 6, 7, 11, 12, 24, 26, 27, 31, 32, 36, 37, 41, 42 ], 
+  [ 1, 4, 16, 19, 46, 49, 7, 8, 12, 13, 25, 27, 28, 32, 33, 37, 38, 42, 43 ], 
+  [ 2, 5, 37, 40, 42, 45, 8, 9, 13, 14, 18, 19, 23, 24, 26, 33, 34, 48, 49 ], 
+  [ 1, 3, 36, 38, 41, 43, 9, 10, 14, 15, 19, 20, 24, 25, 27, 34, 35, 49, 50 ],
+  [ 2, 4, 37, 39, 42, 44, 6, 10, 11, 15, 16, 20, 21, 25, 28, 31, 35, 46, 50 ],
+  [ 3, 5, 38, 40, 43, 45, 6, 7, 11, 12, 16, 17, 21, 22, 29, 31, 32, 46, 47 ], 
+  [ 1, 4, 36, 39, 41, 44, 7, 8, 12, 13, 17, 18, 22, 23, 30, 32, 33, 47, 48 ], 
+  [ 7, 10, 42, 45, 47, 50, 3, 4, 13, 14, 18, 19, 23, 24, 28, 29, 31, 38, 39 ],
+  [ 6, 8, 41, 43, 46, 48, 4, 5, 14, 15, 19, 20, 24, 25, 29, 30, 32, 39, 40 ], 
+  [ 7, 9, 42, 44, 47, 49, 1, 5, 11, 15, 16, 20, 21, 25, 26, 30, 33, 36, 40 ], 
+  [ 8, 10, 43, 45, 48, 50, 1, 2, 11, 12, 16, 17, 21, 22, 26, 27, 34, 36, 37 ],
+  [ 6, 9, 41, 44, 46, 49, 2, 3, 12, 13, 17, 18, 22, 23, 27, 28, 35, 37, 38 ], 
+  [ 12, 15, 27, 30, 47, 50, 3, 4, 8, 9, 18, 19, 23, 24, 33, 34, 36, 43, 44 ], 
+  [ 11, 13, 26, 28, 46, 48, 4, 5, 9, 10, 19, 20, 24, 25, 34, 35, 37, 44, 45 ],
+  [ 12, 14, 27, 29, 47, 49, 1, 5, 6, 10, 16, 20, 21, 25, 31, 35, 38, 41, 45 ],
+  [ 13, 15, 28, 30, 48, 50, 1, 2, 6, 7, 16, 17, 21, 22, 31, 32, 39, 41, 42 ], 
+  [ 11, 14, 26, 29, 46, 49, 2, 3, 7, 8, 17, 18, 22, 23, 32, 33, 40, 42, 43 ], 
+  [ 17, 20, 27, 30, 32, 35, 3, 4, 8, 9, 13, 14, 23, 24, 38, 39, 41, 48, 49 ], 
+  [ 16, 18, 26, 28, 31, 33, 4, 5, 9, 10, 14, 15, 24, 25, 39, 40, 42, 49, 50 ],
+  [ 17, 19, 27, 29, 32, 34, 1, 5, 6, 10, 11, 15, 21, 25, 36, 40, 43, 46, 50 ],
+  [ 18, 20, 28, 30, 33, 35, 1, 2, 6, 7, 11, 12, 21, 22, 36, 37, 44, 46, 47 ], 
+  [ 16, 19, 26, 29, 31, 34, 2, 3, 7, 8, 12, 13, 22, 23, 37, 38, 45, 47, 48 ], 
+  [ 22, 25, 32, 35, 37, 40, 3, 4, 8, 9, 13, 14, 18, 19, 28, 29, 43, 44, 46 ], 
+  [ 21, 23, 31, 33, 36, 38, 4, 5, 9, 10, 14, 15, 19, 20, 29, 30, 44, 45, 47 ],
+  [ 22, 24, 32, 34, 37, 39, 1, 5, 6, 10, 11, 15, 16, 20, 26, 30, 41, 45, 48 ],
+  [ 23, 25, 33, 35, 38, 40, 1, 2, 6, 7, 11, 12, 16, 17, 26, 27, 41, 42, 49 ], 
+  [ 21, 24, 31, 34, 36, 39, 2, 3, 7, 8, 12, 13, 17, 18, 27, 28, 42, 43, 50 ] ]
+
+# DigraphShortestPathSpanningTree
+gap> D := Digraph([[2, 3, 4], [1, 3, 4, 5], [1, 2], [5], [4]]);
+<immutable digraph with 5 vertices, 11 edges>
+gap> OutNeighbours(DigraphShortestPathSpanningTree(D, 1));
+[ [ 2, 3, 4 ], [ 5 ], [  ], [  ], [  ] ]
+gap> OutNeighbours(DigraphShortestPathSpanningTree(D, 2));
+[ [  ], [ 1, 3, 4, 5 ], [  ], [  ], [  ] ]
+gap> OutNeighbours(DigraphShortestPathSpanningTree(D, 3));
+[ [ 4 ], [ 5 ], [ 1, 2 ], [  ], [  ] ]
+gap> DigraphShortestPathSpanningTree(D, 4);
+fail
+gap> DigraphShortestPathSpanningTree(D, 5);
+fail
+gap> OutNeighbours(DigraphShortestPathSpanningTree(D, 6));
+Error, the 2nd argument <v> must be a vertex of the digraph <D>
+
+#
+gap> D1 := Digraph([[], [1], [2, 4], [5], []]);
+<immutable digraph with 5 vertices, 4 edges>
+gap> SetDigraphVertexLabels(D1, Elements(CyclicGroup(IsPermGroup, 5)));
+gap> DigraphGroup(D1);
+Group([ (1,5)(2,4) ])
+gap> D2 := DigraphShortestPathSpanningTree(D1, 3);;
+gap> D1 = D2;
+true
+gap> DigraphVertexLabels(D2);
+[ (), (1,2,3,4,5), (1,3,5,2,4), (1,4,2,5,3), (1,5,4,3,2) ]
+gap> IsDirectedTree(D2);
+true
+
+#
+gap> D1 := DigraphFromDigraph6String("&GG@STD?eIA?_");
+<immutable digraph with 8 vertices, 16 edges>
+gap> SetDigraphVertexLabels(D1, "abcdefgh");
+gap> g := AsList(DihedralGroup(IsPermGroup, 16));;
+gap> for i in [1 .. DigraphNrEdges(D1)] do
+>   e := DigraphEdges(D1)[i];
+>   SetDigraphEdgeLabel(D1, e[1], e[2], g[i]);
+> od;
+gap> D2 := DigraphMutableCopy(D1);
+<mutable digraph with 8 vertices, 16 edges>
+gap> DigraphShortestPathSpanningTree(D2, 1);
+fail
+gap> DigraphShortestPathSpanningTree(D2, 2);;
+gap> D2;
+<mutable digraph with 8 vertices, 7 edges>
+gap> for i in [1 .. DigraphNrEdges(D2)] do
+>   e := DigraphEdges(D2)[i];
+>   if DigraphEdgeLabel(D1, e[1], e[2]) <> DigraphEdgeLabel(D1, e[1], e[2]) then
+>     Print("fail!");
+>   fi;
+> od;
+gap> DigraphVertexLabels(D2);
+"abcdefgh"
+gap> OutNeighbours(D2);
+[ [ 3 ], [ 4, 6, 8 ], [  ], [  ], [  ], [ 1, 5, 7 ], [  ], [  ] ]
+gap> IsDirectedTree(D2);
+true
+
+#
+gap> DigraphShortestPathSpanningTree(EmptyDigraph(0), 1);
+Error, the 2nd argument <v> must be a vertex of the digraph <D>
+gap> DigraphShortestPathSpanningTree(EmptyDigraph(1), 1);
+<immutable empty digraph with 1 vertex>
+
+# Dominators
+gap> D := Digraph([[2], [3, 4, 6], [5], [5], [2], []]);
+<immutable digraph with 6 vertices, 7 edges>
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> D := DigraphDisjointUnion(D, D);
+<immutable digraph with 10 vertices, 40 edges>
+gap> D := NullDigraph(10);
+<immutable empty digraph with 10 vertices>
+gap> D := ChainDigraph(10000);
+<immutable chain digraph with 10000 vertices>
+gap> D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);;
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 1 ], [ 1 ], [ 1 ] ]
+gap> Dominators(D, 2);
+[ [ 2 ],, [ 2 ], [ 2 ], [ 2 ] ]
+gap> Dominators(D, 5);
+[ [ 5 ], [ 5 ], [ 5 ], [ 5 ] ]
+gap> D := CycleDigraph(10);
+<immutable cycle digraph with 10 vertices>
+gap> Dominators(D, 5);
+[ [ 10, 9, 8, 7, 6, 5 ], [ 1, 10, 9, 8, 7, 6, 5 ], 
+  [ 2, 1, 10, 9, 8, 7, 6, 5 ], [ 3, 2, 1, 10, 9, 8, 7, 6, 5 ],, [ 5 ], 
+  [ 6, 5 ], [ 7, 6, 5 ], [ 8, 7, 6, 5 ], [ 9, 8, 7, 6, 5 ] ]
+gap> D := Digraph([[3, 4], [1, 4], [2, 5], [3, 5], []]);
+<immutable digraph with 5 vertices, 8 edges>
+gap> Dominators(D, 1);
+[ , [ 3, 1 ], [ 1 ], [ 1 ], [ 1 ] ]
+gap> Dominators(D, 2);
+[ [ 2 ],, [ 2 ], [ 2 ], [ 2 ] ]
+gap> Dominators(D, 3);
+[ [ 2, 3 ], [ 3 ],, [ 2, 3 ], [ 3 ] ]
+gap> Dominators(D, 4);
+[ [ 2, 3, 4 ], [ 3, 4 ], [ 4 ],, [ 4 ] ]
+gap> Dominators(D, 5);
+[  ]
+gap> d := Digraph([[2, 3], [4, 6], [4, 5], [3, 5], [1, 6], [2, 3]]);
+<immutable digraph with 6 vertices, 12 edges>
+gap> Dominators(d, 5);
+[ [ 5 ], [ 5 ], [ 5 ], [ 5 ],, [ 5 ] ]
+gap> Dominators(d, 1);
+[ , [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ] ]
+gap> Dominators(d, 3);
+[ [ 5, 3 ], [ 5, 3 ],, [ 3 ], [ 3 ], [ 5, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 5, 4 ], [ 5, 4 ], [ 4 ],, [ 4 ], [ 5, 4 ] ]
+gap> Dominators(d, 6);
+[ [ 5, 6 ], [ 6 ], [ 6 ], [ 6 ], [ 6 ] ]
+gap> d := Digraph([[], [3], [4, 5], [2], [4]]);
+<immutable digraph with 5 vertices, 5 edges>
+gap> Dominators(d, 1);
+[  ]
+gap> Dominators(d, 2);
+[ ,, [ 2 ], [ 3, 2 ], [ 3, 2 ] ]
+gap> Dominators(d, 3);
+[ , [ 4, 3 ],, [ 3 ], [ 3 ] ]
+gap> Dominators(d, 4);
+[ , [ 4 ], [ 2, 4 ],, [ 3, 2, 4 ] ]
+gap> Dominators(d, 5);
+[ , [ 4, 5 ], [ 2, 4, 5 ], [ 5 ] ]
+gap> D := Digraph([[2, 3, 5], [1, 6], [4, 6, 7], [7, 8], [4], [], [8], []]);
+<immutable digraph with 8 vertices, 12 edges>
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ] ]
+gap> Dominators(D, 2);
+[ [ 2 ],, [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], [ 2 ], [ 1, 2 ], [ 1, 2 ] ]
+gap> Dominators(D, 3);
+[ ,,, [ 3 ],, [ 3 ], [ 3 ], [ 3 ] ]
+gap> Dominators(D, 4);
+[ ,,,,,, [ 4 ], [ 4 ] ]
+gap> Dominators(D, 5);
+[ ,,, [ 5 ],,, [ 4, 5 ], [ 4, 5 ] ]
+gap> Dominators(D, 6);
+[  ]
+gap> Dominators(D, 7);
+[ ,,,,,,, [ 7 ] ]
+gap> Dominators(D, 8);
+[  ]
+gap> d := Digraph([[2], [3, 6], [2, 4], [1], [], [3]]);
+<immutable digraph with 6 vertices, 7 edges>
+gap> Dominators(d, 1);
+[ , [ 1 ], [ 2, 1 ], [ 3, 2, 1 ],, [ 2, 1 ] ]
+gap> Dominators(d, 2);
+[ [ 4, 3, 2 ],, [ 2 ], [ 3, 2 ],, [ 2 ] ]
+gap> Dominators(d, 3);
+[ [ 4, 3 ], [ 3 ],, [ 3 ],, [ 2, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 4 ], [ 1, 4 ], [ 2, 1, 4 ],,, [ 2, 1, 4 ] ]
+gap> Dominators(d, 5);
+[  ]
+gap> Dominators(d, 6);
+[ [ 4, 3, 6 ], [ 3, 6 ], [ 6 ], [ 3, 6 ] ]
+gap> d := Digraph([[1, 2, 3], [4, 5], [1, 3], [3, 5], [4]]);
+<immutable digraph with 5 vertices, 10 edges>
+gap> Dominators(d, 1);
+[ , [ 1 ], [ 1 ], [ 2, 1 ], [ 2, 1 ] ]
+gap> Dominators(d, 2);
+[ [ 3, 4, 2 ],, [ 4, 2 ], [ 2 ], [ 2 ] ]
+gap> Dominators(d, 3);
+[ [ 3 ], [ 1, 3 ],, [ 2, 1, 3 ], [ 2, 1, 3 ] ]
+gap> Dominators(d, 4);
+[ [ 3, 4 ], [ 1, 3, 4 ], [ 4 ],, [ 4 ] ]
+gap> Dominators(d, 5);
+[ [ 3, 4, 5 ], [ 1, 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+gap>  D := Digraph([[1, 2, 3], [4], [1, 5], [], [2]]);
+<immutable digraph with 5 vertices, 7 edges>
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 1 ], [ 2, 1 ], [ 3, 1 ] ]
+gap> Dominators(D, 2);
+[ ,,, [ 2 ] ]
+gap> Dominators(D, 3);
+[ [ 3 ], [ 3 ],, [ 2, 3 ], [ 3 ] ]
+gap> Dominators(D, 4);
+[  ]
+gap> Dominators(D, 5);
+[ , [ 5 ],, [ 2, 5 ] ]
+gap> D := EmptyDigraph(15);
+<immutable empty digraph with 15 vertices>
+gap> Dominators(D, 3);
+[  ]
+gap> D := Digraph(IsMutableDigraph, [[1, 2, 3], [4], [1, 5], [], [2]]);
+<mutable digraph with 5 vertices, 7 edges>
+gap> Dominators(D, 5);
+[ , [ 5 ],, [ 2, 5 ] ]
+gap> Dominators(D, 4);
+[  ]
+gap> Dominators(D, 3);
+[ [ 3 ], [ 3 ],, [ 2, 3 ], [ 3 ] ]
+gap> Dominators(D, 2);
+[ ,,, [ 2 ] ]
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 1 ], [ 2, 1 ], [ 3, 1 ] ]
+gap> D := Digraph(IsMutableDigraph, [[2, 3, 5], [1, 6], [4, 6, 7], [7, 8], [4], [], [8], []]);
+<mutable digraph with 8 vertices, 12 edges>
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ] ]
+gap> Dominators(D, 2);
+[ [ 2 ],, [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], [ 2 ], [ 1, 2 ], [ 1, 2 ] ]
+gap> Dominators(D, 3);
+[ ,,, [ 3 ],, [ 3 ], [ 3 ], [ 3 ] ]
+gap> Dominators(D, 4);
+[ ,,,,,, [ 4 ], [ 4 ] ]
+gap> Dominators(D, 5);
+[ ,,, [ 5 ],,, [ 4, 5 ], [ 4, 5 ] ]
+gap> Dominators(D, 6);
+[  ]
+gap> Dominators(D, 7);
+[ ,,,,,,, [ 7 ] ]
+gap> Dominators(D, 8);
+[  ]
+
+# DominatorTree
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail, 1, 1, 1, 1 ], preorder := [ 1, 2, 3, 4, 5 ] )
+gap> DominatorTree(D, 2);
+rec( idom := [ 2, fail, 2, 2, 2 ], preorder := [ 2, 1, 3, 4, 5 ] )
+gap> DominatorTree(D, 3);
+rec( idom := [ 3, 3, fail, 3, 3 ], preorder := [ 3, 1, 2, 4, 5 ] )
+gap> DominatorTree(D, 4);
+rec( idom := [ 4, 4, 4, fail, 4 ], preorder := [ 4, 1, 2, 3, 5 ] )
+gap> DominatorTree(D, 5);
+rec( idom := [ 5, 5, 5, 5, fail ], preorder := [ 5, 1, 2, 3, 4 ] )
+gap> D := CycleDigraph(10);
+<immutable cycle digraph with 10 vertices>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail, 1, 2, 3, 4, 5, 6, 7, 8, 9 ], 
+  preorder := [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ] )
+gap> DominatorTree(D, 2);
+rec( idom := [ 10, fail, 2, 3, 4, 5, 6, 7, 8, 9 ], 
+  preorder := [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 1 ] )
+gap> DominatorTree(D, 5);
+rec( idom := [ 10, 1, 2, 3, fail, 5, 6, 7, 8, 9 ], 
+  preorder := [ 5, 6, 7, 8, 9, 10, 1, 2, 3, 4 ] )
+gap> D := Digraph([[2, 3], [4, 6], [4, 5], [3, 5], [1, 6], [2, 3]]);
+<immutable digraph with 6 vertices, 12 edges>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail, 1, 1, 1, 1, 1 ], preorder := [ 1, 2, 4, 3, 5, 6 ] )
+gap> DominatorTree(D, 5);
+rec( idom := [ 5, 5, 5, 5, fail, 5 ], preorder := [ 5, 1, 2, 4, 3, 6 ] )
+gap> DominatorTree(D, 6);
+rec( idom := [ 5, 6, 6, 6, 6, fail ], preorder := [ 6, 2, 4, 3, 5, 1 ] )
+gap> D := EmptyDigraph(15);
+<immutable empty digraph with 15 vertices>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail ], preorder := [ 1 ] )
+gap> DominatorTree(D, 6);
+rec( idom := [ ,,,,, fail ], preorder := [ 6 ] )
+
 #DIGRAPHS_UnbindVariables
 gap> Unbind(a);
 gap> Unbind(adj);
 gap> Unbind(b);
+gap> Unbind(D1);
+gap> Unbind(D2);
 gap> Unbind(e);
 gap> Unbind(edges);
 gap> Unbind(edges2);

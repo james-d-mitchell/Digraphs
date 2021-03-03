@@ -60,8 +60,11 @@
     <#Include Label="DigraphPeriod">
     <#Include Label="DigraphFloydWarshall">
     <#Include Label="IsReachable">
+    <#Include Label="VerticesReachableFrom">
     <#Include Label="DigraphPath">
     <#Include Label="DigraphShortestPath">
+    <#Include Label="Dominators">
+    <#Include Label="DominatorTree">
     <#Include Label="IteratorOfPaths">
     <#Include Label="DigraphAllSimpleCircuits">
     <#Include Label="DigraphLongestSimpleCircuit">

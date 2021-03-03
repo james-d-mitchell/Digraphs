@@ -1275,7 +1275,7 @@ true
   <Description>
     This operation returns <K>true</K> if there exists a non-trivial directed
     walk from vertex <A>u</A> to vertex <A>v</A> in the digraph <A>digraph</A>,
-    and <K>false</K> if there does not exist such a directed walk.  See section
+    and <K>false</K> if there does not exist such a directed walk.  See Section
     <Ref Subsect="Definitions" Style="Number" /> for the definition of a
     non-trivial directed walk.
     <P/>
@@ -1299,6 +1299,54 @@ false
   </Description>
 </ManSection>
 <#/GAPDoc>
+
+<#GAPDoc Label="VerticesReachableFrom">
+<ManSection>
+  <Oper Name="VerticesReachableFrom" Arg="digraph, root"/>
+  <Returns>A list.</Returns>
+  <Description>
+    This operation returns a list of the vertices  <A>v</A>, for which there exists
+    a non-trivial directed walk from vertex <A>root</A> to vertex <A>v</A> in the digraph
+    <A>digraph</A>. See Section <Ref Subsect="Definitions" Style="Number" />
+    for the definition of a non-trivial directed walk.
+    <P/>
+
+    The method for <C>VerticesReachableFrom</C> has worst case complexity of <M>O(m +
+      n)</M> where <M>m</M> is the number of edges and <M>n</M> the number of
+    vertices in <A>digraph</A>.
+
+<Example><![CDATA[
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 1, 3, 4, 5 ]
+gap> VerticesReachableFrom(D, 3);
+[ 1, 2, 3, 4, 5 ]
+gap> D := EmptyDigraph(5);
+<immutable empty digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[  ]
+gap> VerticesReachableFrom(D, 3);
+[  ]
+gap> D := CycleDigraph(4);
+<immutable cycle digraph with 4 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 3, 4, 1 ]
+gap> VerticesReachableFrom(D, 3);
+[ 4, 1, 2, 3 ]
+gap> D := ChainDigraph(5);
+<immutable chain digraph with 5 vertices>
+gap> VerticesReachableFrom(D, 1);
+[ 2, 3, 4, 5 ]
+gap> VerticesReachableFrom(D, 3);
+[ 4, 5 ]
+gap> VerticesReachableFrom(D, 5);
+[  ]
+]]></Example>
+  </Description>
+</ManSection>
+<#/GAPDoc>
+
 
 <#GAPDoc Label="DigraphPath">
 <ManSection>
@@ -1326,7 +1374,7 @@ false
         where for each each <M>i &lt; n</M>, <M>a_i</M> is the position of
         <M>v_{i+1}</M> in
         <C>OutNeighboursOfVertex(</C><A>digraph</A><C>,</C><M>v_i</M><C>)</C>
-        corresponding to the edge <M>e_i</M>.  This is can be useful if the
+        corresponding to the edge <M>e_i</M>.  This can be useful if the
         position of a vertex in a list of out-neighours is significant, for
         example in orbit digraphs.
       </Item>
@@ -1352,13 +1400,61 @@ fail
 </ManSection>
 <#/GAPDoc>
 
+<#GAPDoc Label="DigraphShortestPathSpanningTree">
+<ManSection>
+  <Oper Name="DigraphShortestPathSpanningTree" Arg="digraph, v"/>
+  <Returns>A digraph, or <K>fail</K>.</Returns>
+  <Description>
+    If <A>v</A> is a vertex in <A>digraph</A> and every other
+    vertex of <A>digraph</A> is reachable from <A>v</A>,
+    then this operation returns the shortest path spanning tree of
+    <A>digraph</A> rooted at <A>v</A>.
+    If there exist vertices in <A>digraph</A> (other than <A>v</A>) that are
+    not reachable from <A>v</A>, then <C>DigraphShortestPathSpanningTree</C>
+    returns <K>fail</K>.  See <Ref Oper="IsReachable"/>. <P/>
+
+    The <E>shortest path spanning tree of <A>digraph</A> rooted at <A>v</A></E>
+    is a subdigraph of <A>digraph</A> that is a directed tree, with unique
+    source vertex <A>v</A>, and where for each other vertex <A>u</A> in
+    <A>digraph</A>, the unique directed path from <A>v</A> to <A>u</A> in the
+    tree is the lexicographically-least shortest directed path from <A>v</A> to
+    <A>u</A> in <A>digraph</A>. <P/>
+
+    See <Ref Prop="IsDirectedTree"/>, <Ref Attr="DigraphSources"/>, and
+    <Ref Oper="DigraphShortestPath"/>. <P/>
+    
+    If <A>digraph</A> belongs to <Ref Filt="IsMutableDigraph"/>, then
+    <A>digraph</A> is modified in place. If <A>digraph</A> belongs to <Ref
+    Filt="IsImmutableDigraph"/>, then the spanning tree is a new immutable
+    digraph.
+
+<Example><![CDATA[
+gap> D := Digraph([[1, 2], [3], [2, 4], [1], [2, 4]]);
+<immutable digraph with 5 vertices, 8 edges>
+gap> ForAll([2 .. 5], v -> IsReachable(D, 1, v));
+false
+gap> DigraphShortestPathSpanningTree(D, 1);
+fail
+gap> tree := DigraphShortestPathSpanningTree(D, 5);
+<immutable digraph with 5 vertices, 4 edges>
+gap> OutNeighbours(tree);
+[ [  ], [ 3 ], [  ], [ 1 ], [ 2, 4 ] ]
+gap> ForAll(DigraphVertices(D), v ->
+> DigraphShortestPath(D, 5, v) = DigraphPath(tree, 5, v));
+true
+]]></Example>
+  </Description>
+</ManSection>
+<#/GAPDoc>
+
+<!-- TODO is it *the* lexicographically least shortest path? -->
 <#GAPDoc Label="DigraphShortestPath">
 <ManSection>
   <Oper Name="DigraphShortestPath" Arg="digraph, u, v"/>
   <Returns>A pair of lists, or <K>fail</K>.</Returns>
   <Description>
-    Returns the shortest directed path in the digraph digraph from the vertex
-    <A>u</A> to the vertex <A>v</A>, if such a path exists. If <C><A>u</A> =
+    Returns a shortest directed path in the digraph <A>digraph</A> from vertex
+    <A>u</A> to vertex <A>v</A>, if such a path exists. If <C><A>u</A> =
     <A>v</A></C>, then the shortest non-trivial cycle is returned, again, if it
     exists. Otherwise, this operation returns <K>fail</K>.  See Section
     <Ref Subsect="Definitions" Style="Text"/> for the definition of a directed
@@ -1435,7 +1531,7 @@ gap> NextIterator(iter);
   <Description>
     If <A>digraph</A> is a digraph and <A>v</A> is a vertex in <A>digraph</A>,
     then this operation returns the length of the longest directed walk in
-    <A>digraph</A> which begins at vertex <A>v</A>.  See section <Ref
+    <A>digraph</A> which begins at vertex <A>v</A>.  See Section <Ref
       Subsect="Definitions" Style="Number" /> for the definitions of directed
     walk, directed cycle, and loop.
     <P/>
@@ -1538,7 +1634,7 @@ gap> DigraphDistanceSet(D, 2, 0);
     If there is a directed path in the digraph <A>digraph</A> between vertex
     <A>u</A> and vertex <A>v</A>, then this operation returns the length of the
     shortest such directed path.  If no such directed path exists, then this
-    operation returns <K>fail</K>. See section <Ref Subsect="Definitions"
+    operation returns <K>fail</K>. See Section <Ref Subsect="Definitions"
       Style="Number" /> for the definition of a directed path. <P/>
 
     If the second form is used, then <A>list</A> should be a list of length two,
@@ -1567,6 +1663,92 @@ gap> DigraphShortestDistance(D, [1, 2], [4, 5]);
 2
 gap> DigraphShortestDistance(D, [1, 3], [3, 5]);
 0
+]]></Example>
+  </Description>
+</ManSection>
+<#/GAPDoc>
+
+<#GAPDoc Label="Dominators">
+<ManSection>
+  <Oper Name="Dominators" Arg="digraph, root"/>
+  <Returns>A list of lists.</Returns>
+    <Description>
+    <C>Dominators</C> takes a <A>digraph</A> and a root <A>root</A> and returns
+    the dominators of each vertex with respect to the root. The output is
+    returned as a list of length <C>DigraphNrVertices(<A>Digraph</A>)</C>,
+    whose <A>i</A>th entry is a list with the dominators of vertex <A>i</A> of
+    the <A>digraph</A>. If there is no path from the root to a specific vertex,
+    the output will contain a hole in the corresponding position. The
+    <E>dominators</E> of a vertex <M>u</M> are the vertices that are
+    contained in every path from the <M>root</M> to <M>u</M>, not including
+    <M>u</M> itself.
+
+    The method for this operation is an implementation of an algorithm by
+    Thomas Lengauer and Robert Endre Tarjan <Cite Key="LT79"/>. The complexity
+    of this algorithm is <M>O(mlog n)</M> where <M>m</M> is the number of edges
+    and <M>n</M> is the number of nodes in the subdigraph induced by the nodes
+    in <A>digraph</A> reachable from <A>root</A>.
+    <Example><![CDATA[
+gap> D := Digraph([[2], [3, 6], [2, 4], [1], [], [3]]);
+<immutable digraph with 6 vertices, 7 edges>
+gap> Dominators(D, 1);
+[ , [ 1 ], [ 2, 1 ], [ 3, 2, 1 ],, [ 2, 1 ] ]
+gap> Dominators(D, 2);
+[ [ 4, 3, 2 ],, [ 2 ], [ 3, 2 ],, [ 2 ] ]
+gap> Dominators(D, 3);
+[ [ 4, 3 ], [ 3 ],, [ 3 ],, [ 2, 3 ] ]
+gap> Dominators(D, 4);
+[ [ 4 ], [ 1, 4 ], [ 2, 1, 4 ],,, [ 2, 1, 4 ] ]
+gap> Dominators(D, 5);
+[  ]
+gap> Dominators(D, 6);
+[ [ 4, 3, 6 ], [ 3, 6 ], [ 6 ], [ 3, 6 ] ]
+]]></Example>
+  </Description>
+</ManSection>
+<#/GAPDoc>
+
+<#GAPDoc Label="DominatorTree">
+<ManSection>
+  <Oper Name="DominatorTree" Arg="digraph, root"/>
+  <Returns>A record.</Returns>
+  <Description>
+    <C>DominatorTree</C> takes a <A>digraph</A> and a
+    <A>root</A> vertex and returns a record with the following components: 
+    <List>
+      <Mark>idom</Mark>
+      <Item>
+        the immediate dominators of the vertices with respect
+        to the root.
+      </Item>
+      <Mark>preorder</Mark>
+      <Item>
+        the preorder values of the vertices defined by the depth first search
+        executed on the digraph.
+      </Item>
+    </List>
+    The <E>immediate dominator</E> of a vertex <M>u</M> is the unique dominator
+    of <M>u</M> that is dominated by all other dominators of <M>u</M>. The
+    algorithm is an implementation of the fast algorithm written by Thomas
+    Lengauer and Robert Endre Tarjan <Cite Key="LT79"/>.  The complexity of
+    this algorithm is <M>O(mlog n)</M> where <M>m</M> is the number of edges
+    and <M>n</M> is the number of nodes in the subdigraph induced by the nodes
+    in <A>digraph</A> reachable from <A>root</A>.
+  <Example><![CDATA[
+gap> D := Digraph([[2, 3], [4, 6], [4, 5], [3, 5], [1, 6], [2, 3]]);
+<immutable digraph with 6 vertices, 12 edges>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail, 1, 1, 1, 1, 1 ], 
+  preorder := [ 1, 2, 4, 3, 5, 6 ] )
+gap> DominatorTree(D, 5);
+rec( idom := [ 5, 5, 5, 5, fail, 5 ], 
+  preorder := [ 5, 1, 2, 4, 3, 6 ] )
+gap> D := CompleteDigraph(5);
+<immutable complete digraph with 5 vertices>
+gap> DominatorTree(D, 1);
+rec( idom := [ fail, 1, 1, 1, 1 ], preorder := [ 1, 2, 3, 4, 5 ] )
+gap> DominatorTree(D, 2);
+rec( idom := [ 2, fail, 2, 2, 2 ], preorder := [ 2, 1, 3, 4, 5 ] )
 ]]></Example>
   </Description>
 </ManSection>
@@ -1736,6 +1918,48 @@ gap> DigraphDijkstra(D, 1, 3);
 [ [ 0, 1, 1 ], [ -1, 1, 1 ] ]
 gap> DigraphDijkstra(D, 1, 2);
 [ [ 0, 1, 1 ], [ -1, 1, 1 ] ]
+]]></Example>
+</Description>
+</ManSection>
+<#/GAPDoc>
+
+<#GAPDoc Label="ModularProduct">
+<ManSection>
+  <Oper Name="ModularProduct" Arg="D1, D2"/>
+  <Returns>A digraph.</Returns>
+  <Description>
+  If <A>D1</A> and <A>D2</A> are digraphs without multiple edges, then
+  <C>ModularProduct</C> calculates the <E>modular product digraph</E>
+  (<C>MPD</C>) of <A>D1</A>and <A>D2</A>.
+
+  <C>MPD</C> has vertex set <C>V1 x V2</C> where <C>V1</C> is the vertex set of
+  <A>D1</A> and <C>V2</C> is the vertex set of <A>D2</A> (a vertex
+  <C>[a, b]</C> has label <C>(a - 1) * |V2| + b</C> in the  output). There is
+  an edge from <C>[a, b]</C> to <C>[c, d]</C> precisely when the following
+  two conditions are satisfied:
+  <List>
+    <Item>
+      The vertices <C>a</C> and <C>c</C> of <A>D1</A> are equal if and only if
+      the vertices <C>b</C> and <C>d</C> of <A>D2</A> are equal.
+    </Item>
+    <Item>
+      There is an edge from <C>a</C> to <C>c</C> in <A>D1</A> if and only if
+      there is an edge from <C>b</C> to <C>d</C> in <A>D2</A>.
+    </Item>
+  </List>
+
+  Notably, the complete (with loops) subdigraphs of <C>MPD</C> are
+  precisely the partial isomorphisms from <A>D1</A> to <A>D2</A>.
+
+  <Example><![CDATA[
+gap> ModularProduct(Digraph([[1], [1, 2]]), Digraph([[], [2]]));
+<immutable digraph with 4 vertices, 4 edges>
+gap> OutNeighbours(last);
+[ [ 4 ], [ 2, 3 ], [  ], [ 4 ] ]
+gap> ModularProduct(PetersenGraph(), DigraphSymmetricClosure(CycleDigraph(5)));
+<immutable digraph with 50 vertices, 950 edges>
+gap> ModularProduct(NullDigraph(0), CompleteDigraph(10));
+<immutable empty digraph with 0 vertices>
 ]]></Example>
 </Description>
 </ManSection>

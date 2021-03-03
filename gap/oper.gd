@@ -41,6 +41,8 @@ DeclareGlobalFunction("DigraphJoin");
 DeclareGlobalFunction("DigraphEdgeUnion");
 DeclareGlobalFunction("DigraphCartesianProduct");
 DeclareGlobalFunction("DigraphDirectProduct");
+DeclareOperation("ModularProduct", [IsDigraph, IsDigraph]);
+
 DeclareGlobalFunction("DIGRAPHS_CombinationOperProcessArgs");
 
 # 4. Actions . . .
@@ -116,6 +118,10 @@ DeclareOperation("DigraphShortestDistance", [IsDigraph, IsPosInt, IsPosInt]);
 DeclareOperation("DigraphShortestDistance", [IsDigraph, IsList, IsList]);
 DeclareOperation("DigraphShortestDistance", [IsDigraph, IsList]);
 DeclareOperation("DigraphShortestPath", [IsDigraph, IsPosInt, IsPosInt]);
+DeclareOperation("DigraphShortestPathSpanningTree", [IsDigraph, IsPosInt]);
+DeclareOperation("VerticesReachableFrom", [IsDigraph, IsPosInt]);
+DeclareOperation("Dominators", [IsDigraph, IsPosInt]);
+DeclareOperation("DominatorTree", [IsDigraph, IsPosInt]);
 
 # 10. Operations for vertices . . .
 DeclareOperation("PartialOrderDigraphJoinOfVertices",
