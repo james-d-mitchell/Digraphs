@@ -78,16 +78,11 @@ Persons := [
     Institution   := "University of St Andrews"),
 
   rec(
-    LastName      := "Burrell",
-    FirstNames    := "Stuart",
-    IsAuthor      := false,
-    IsMaintainer  := false,
-    Email         := "sb235@st-andrews.ac.uk",
-    PostalAddress := Concatenation([
-                       "CREEM, The Observatory, Buchanan Gardens, ",
-                       "St Andrews, Fife, KY16 9LZ, Scotland"]),
-    Place         := "St Andrews",
-    Institution   := "University of St Andrews"),
+    LastName     := "Burrell",
+    FirstNames   := "Stuart",
+    IsAuthor     := false,
+    IsMaintainer := false,
+    WWWHome      := "https://stuartburrell.github.io"),
 
   rec(
     LastName      := "Cirpons",
@@ -100,14 +95,11 @@ Persons := [
     Institution   := "University of St Andrews"),
 
   rec(
-    LastName      := "Conti-Leslie",
-    FirstNames    := "Tom",
-    IsAuthor      := false,
-    IsMaintainer  := false,
-    Email         := "tdcl@st-andrews.ac.uk",
-    PostalAddress := _STANDREWSMATHS,
-    Place         := "St Andrews",
-    Institution   := "University of St Andrews"),
+    LastName     := "Conti-Leslie",
+    FirstNames   := "Tom",
+    IsAuthor     := false,
+    IsMaintainer := false,
+    WWWHome      := "https://tomcontileslie.com/"),
 
   rec(
     LastName      := "Elliott",
@@ -169,13 +161,8 @@ rec(
     FirstNames    := "Julius",
     IsAuthor      := true,
     IsMaintainer  := false,
-    Email         := "julius.jonusas@tuwien.ac.at",
     WWWHome       := "http://julius.jonusas.work",
-    PostalAddress := Concatenation([
-                       "Institut für Diskrete Mathematik und Geometrie, ",
-                       "Wiedner Hauptstrasse 8-10, 1040 Wien, Austria"]),
-    Place         := "Wien, Austria",
-    Institution   := "TU Wien"),
+    Place         := "Brussels, Belgium"),
 
   rec(
     LastName      := "Mitchell",
@@ -194,10 +181,7 @@ rec(
     IsAuthor      := false,
     IsMaintainer  := false,
     Email         := "markus.pfeiffer@morphism.de",
-    WWWHome       := "https://www.morphism.de/~markusp",
-    PostalAddress := _STANDREWSCS,
-    Place         := "St Andrews",
-    Institution   := "University of St Andrews"),
+    WWWHome       := "https://www.morphism.de/~markusp"),
 
   rec(
     LastName      := "Racine",
@@ -213,11 +197,7 @@ rec(
     LastName      := "Russell",
     FirstNames    := "Christopher",
     IsAuthor      := false,
-    IsMaintainer  := false,
-    Email         := "cr66@st-andrews.ac.uk",
-    PostalAddress := _STANDREWSMATHS,
-    Place         := "St Andrews",
-    Institution   := "University of St Andrews"),
+    IsMaintainer  := false),
 
   rec(
     LastName      := "Smith",
@@ -234,10 +214,7 @@ rec(
     FirstNames    := "Ben",
     IsAuthor      := false,
     IsMaintainer  := false,
-    Email         := "bs201@st-andrews.ac.uk",
-    PostalAddress := _STANDREWSMATHS,
-    Place         := "St Andrews",
-    Institution   := "University of St Andrews"),
+    Email         := "bspiers972@outlook.com"),
 
   rec(
     LastName      := "Tsalakou",
@@ -274,7 +251,7 @@ rec(
     IsAuthor      := true,
     IsMaintainer  := false,
     Email         := "mct25@st-andrews.ac.uk",
-    WWWHome       := "https://mct25.host.cs.st-andrews.ac.uk",
+    WWWHome       := "https://mtorpey.github.io/",
     PostalAddress := _STANDREWSCS,
     Place         := "St Andrews",
     Institution   := "University of St Andrews")],
