@@ -1599,34 +1599,36 @@ static bool init_data_from_args(Obj digraph1_obj,
                                 Obj colors2_obj,
                                 Obj order_obj,
                                 Obj aut_grp_obj) {
-  static bool is_initialized = false;  // did we call this method before?
-  if (!is_initialized) {
-    // srand(time(0));
-    is_initialized = true;
+  static uint16_t current_allocated_nr_nodes = 0;
+  if (current_allocated_nr_nodes < max(DigraphNrVertices(digraph1), 128)
+          || current_allocated_nr_nodes < max(DigraphNrVertices(digraph2)),
+      128)) {
+      current_allocated_nr_nodes = 64, 128, 256, 512;
+
 #ifdef DIGRAPHS_ENABLE_STATS
-    STATS = malloc(sizeof(HomoStats));
+      STATS = malloc(sizeof(HomoStats));
 #endif
 
-    DIGRAPH1 = new_digraph(MAXVERTS);
-    DIGRAPH2 = new_digraph(MAXVERTS);
+      DIGRAPH1 = new_digraph(MAXVERTS);
+      DIGRAPH2 = new_digraph(MAXVERTS);
 
-    GRAPH1 = new_graph(MAXVERTS);
-    GRAPH2 = new_graph(MAXVERTS);
+      GRAPH1 = new_graph(MAXVERTS);
+      GRAPH2 = new_graph(MAXVERTS);
 
-    IMAGE_RESTRICT = new_bit_array(MAXVERTS);
-    ORB_LOOKUP     = new_bit_array(MAXVERTS);
-    REPS           = malloc(MAXVERTS * sizeof(BitArray*));
-    for (uint16_t i = 0; i < MAXVERTS; i++) {
-      BLISS_GRAPH[i]      = bliss_digraphs_new(i);
-      REPS[i]             = new_bit_array(MAXVERTS);
-      BIT_ARRAY_BUFFER[i] = new_bit_array(MAXVERTS);
-      MAP_UNDEFINED[i]    = new_bit_array(MAXVERTS);
-      STAB_GENS[i]        = new_perm_coll(MAXVERTS, MAXVERTS);
+      IMAGE_RESTRICT = new_bit_array(MAXVERTS);
+      ORB_LOOKUP     = new_bit_array(MAXVERTS);
+      REPS           = malloc(MAXVERTS * sizeof(BitArray*));
+      for (uint16_t i = 0; i < MAXVERTS; i++) {
+        BLISS_GRAPH[i]      = bliss_digraphs_new(i);
+        REPS[i]             = new_bit_array(MAXVERTS);
+        BIT_ARRAY_BUFFER[i] = new_bit_array(MAXVERTS);
+        MAP_UNDEFINED[i]    = new_bit_array(MAXVERTS);
+        STAB_GENS[i]        = new_perm_coll(MAXVERTS, MAXVERTS);
+      }
+      VALS          = new_bit_array(MAXVERTS);
+      CONDITIONS    = new_conditions(MAXVERTS, MAXVERTS);
+      SCHREIER_SIMS = new_schreier_sims();
     }
-    VALS          = new_bit_array(MAXVERTS);
-    CONDITIONS    = new_conditions(MAXVERTS, MAXVERTS);
-    SCHREIER_SIMS = new_schreier_sims();
-  }
 #ifdef DIGRAPHS_ENABLE_STATS
   clear_stats(STATS);
 #endif
