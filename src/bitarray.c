@@ -13,6 +13,8 @@
 // C headers
 #include <stdlib.h>  // for free, calloc, malloc
 
+#include <stdio.h>  // TODO remove this
+
 // GAP headers
 #include "compiled.h"  // for Obj, ELM_LIST, ISB_LIST, Fail
 
