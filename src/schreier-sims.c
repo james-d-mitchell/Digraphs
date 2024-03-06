@@ -20,38 +20,54 @@
 
 // Digraphs package headers
 #include "digraphs-debug.h"  // for DIGRAPHS_ASSERT
+#include "globals.h"         // for HOMOS_DATA_CURRENT_NUM_NODES
 
 uint16_t PERM_DEGREE = 0;
 
 // Schreier-Sims set up
-
+// TODO don't use HOMOS_DATA_CURRENT_NUM_NODES, use a function arg instead
 SchreierSims* new_schreier_sims() {
   SchreierSims* ss = malloc(sizeof(SchreierSims));
-  ss->tmp_perm     = new_perm(MAXVERTS);
-  ss -> strong_gens = (PermColl**)calloc(MAXVERTS, sizeof(PermColl*));
-  for (uint16_t i = 0; i < MAXVERTS; ++i) {
-    ss->strong_gens[i] = new_perm_coll(MAXVERTS, MAXVERTS);
+  ss->tmp_perm     = new_perm(HOMOS_DATA_CURRENT_NUM_NODES);
+  ss->strong_gens =
+      (PermColl**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(PermColl*));
+  for (uint16_t i = 0; i < HOMOS_DATA_CURRENT_NUM_NODES; ++i) {
+    ss->strong_gens[i] = new_perm_coll(HOMOS_DATA_CURRENT_NUM_NODES,
+                                       HOMOS_DATA_CURRENT_NUM_NODES);
   }
-  ss -> transversal = (Perm*)calloc(MAXVERTS * MAXVERTS, sizeof(Perm));
-  ss -> inversal = (Perm*)calloc(MAXVERTS * MAXVERTS, sizeof(Perm));
+  ss->transversal = (Perm*) calloc(HOMOS_DATA_CURRENT_NUM_NODES
+                                       * HOMOS_DATA_CURRENT_NUM_NODES,
+                                   sizeof(Perm));
+  ss->inversal    = (Perm*) calloc(HOMOS_DATA_CURRENT_NUM_NODES
+                                    * HOMOS_DATA_CURRENT_NUM_NODES,
+                                sizeof(Perm));
 
-  for (size_t i = 0; i < MAXVERTS * MAXVERTS; ++i) {
-    ss->transversal[i] = new_perm(MAXVERTS);
-    ss->inversal[i]    = new_perm(MAXVERTS);
+  for (size_t i = 0;
+       i < HOMOS_DATA_CURRENT_NUM_NODES * HOMOS_DATA_CURRENT_NUM_NODES;
+       ++i) {
+    ss->transversal[i] = new_perm(HOMOS_DATA_CURRENT_NUM_NODES);
+    ss->inversal[i]    = new_perm(HOMOS_DATA_CURRENT_NUM_NODES);
   }
 
-  ss -> base = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  ss -> orbits = (uint16_t*) calloc(MAXVERTS * MAXVERTS, sizeof(uint16_t));
-  ss -> size_orbits = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  ss -> orb_lookup = (bool*) calloc(MAXVERTS * MAXVERTS, sizeof(bool));
-  if(ss->tmp_perm == NULL || ss->strong_gens == NULL || ss->transversal == NULL || ss->inversal == NULL || ss -> base == NULL || ss->orbits == NULL || ss->size_orbits == NULL){
+  ss->base = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  ss->orbits = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES
+                                      * HOMOS_DATA_CURRENT_NUM_NODES,
+                                  sizeof(uint16_t));
+  ss->size_orbits =
+      (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  ss->orb_lookup = (bool*) calloc(HOMOS_DATA_CURRENT_NUM_NODES
+                                      * HOMOS_DATA_CURRENT_NUM_NODES,
+                                  sizeof(bool));
+  if (ss->tmp_perm == NULL || ss->strong_gens == NULL || ss->transversal == NULL
+      || ss->inversal == NULL || ss->base == NULL || ss->orbits == NULL
+      || ss->size_orbits == NULL) {
     // throw an error and free up memory
   }
   return ss;
 }
 
 void init_ss(SchreierSims* ss, uint16_t degree) {
-  DIGRAPHS_ASSERT(degree <= MAXVERTS);
+  DIGRAPHS_ASSERT(degree <= HOMOS_DATA_CURRENT_NUM_NODES);
   for (uint16_t i = 0; i < degree; ++i) {
     clear_perm_coll(ss->strong_gens[i]);
     ss->strong_gens[i]->degree = degree;
@@ -81,7 +97,7 @@ static inline Perm get_transversal_ss(SchreierSims const* const ss,
                                       uint16_t const            j) {
   DIGRAPHS_ASSERT(i < ss->degree);
   DIGRAPHS_ASSERT(j < ss->degree);
-  return ss->transversal[i * MAXVERTS + j];
+  return ss->transversal[i * ss->degree + j];
 }
 
 static inline Perm get_inversal_ss(SchreierSims const* const ss,
@@ -89,7 +105,7 @@ static inline Perm get_inversal_ss(SchreierSims const* const ss,
                                    uint16_t const            j) {
   DIGRAPHS_ASSERT(i < ss->degree);
   DIGRAPHS_ASSERT(j < ss->degree);
-  return ss->inversal[i * MAXVERTS + j];
+  return ss->inversal[i * HOMOS_DATA_CURRENT_NUM_NODES + j];
 }
 
 static inline void add_base_point_ss(SchreierSims* ss, uint16_t const pt) {

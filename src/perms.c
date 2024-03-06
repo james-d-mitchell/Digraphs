@@ -20,28 +20,20 @@
 // Digraphs package headers
 #include "digraphs-debug.h"  // for DIGRAPHS_ASSERT
 
-uint16_t MAXVERTS  = 0;
-uint16_t UNDEFINED = -1;
-
-void set_maxverts(uint16_t maxverts) {
-  MAXVERTS  = maxverts;
-  UNDEFINED = maxverts + 1;
-}
-
 Perm new_perm(uint16_t const degree) {
-  DIGRAPHS_ASSERT(degree <= MAXVERTS);
+  // DIGRAPHS_ASSERT(degree <= MAXVERTS);
   return malloc(degree * sizeof(uint16_t));
 }
 
 Perm new_perm_from_gap(Obj gap_perm_obj, uint16_t const degree) {
   UInt lmp = LargestMovedPointPerm(gap_perm_obj);
-  DIGRAPHS_ASSERT(lmp <= MAXVERTS);
-  if (lmp > MAXVERTS) {
-    ErrorQuit("expected permutations of degree at most %d, but got a "
-              "permutation of degree %d",
-              MAXVERTS,
-              lmp);
-  }
+  // DIGRAPHS_ASSERT(lmp <= MAXVERTS);
+  // if (lmp > MAXVERTS) {
+  //   ErrorQuit("expected permutations of degree at most %d, but got a "
+  //             "permutation of degree %d",
+  //             MAXVERTS,
+  //             lmp);
+  // }
 
   DIGRAPHS_ASSERT(lmp <= degree);
 

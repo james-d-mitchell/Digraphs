@@ -22,7 +22,7 @@
 #include "conditions.h"      // for Conditions
 #include "digraphs-debug.h"  // for DIGRAPHS_ASSERT
 #include "homos-graphs.h"    // for Digraph, Graph, . . .
-#include "perms.h"           // for MAXVERTS, UNDEFINED, PermColl, Perm
+#include "perms.h"  // for CLIQUES_DATA_CURRENT_NUM_NODES, UNDEFINED, PermColl, Perm
 
 ////////////////////////////////////////////////////////////////////////////////
 // Macros
@@ -84,6 +84,8 @@ struct clique_data {
 };
 
 typedef struct clique_data CliqueData;
+
+static uint16_t CLIQUES_DATA_CURRENT_NUM_NODES = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Hook functions
@@ -174,7 +176,7 @@ static void init_graph_from_digraph_obj(Graph* const graph, Obj digraph_obj) {
   UInt const nr      = DigraphNrVertices(digraph_obj);
   Obj        out     = FuncOutNeighbours(0L, digraph_obj);
   Obj        adj_mat = FuncADJACENCY_MATRIX(0L, digraph_obj);
-  // DIGRAPHS_ASSERT(nr < MAXVERTS);
+  // DIGRAPHS_ASSERT(nr < CLIQUES_DATA_CURRENT_NUM_NODES);
   DIGRAPHS_ASSERT(IS_PLIST(adj_mat));
   DIGRAPHS_ASSERT(IS_PLIST(out));
   clear_graph(graph, nr);
@@ -203,22 +205,25 @@ static bool init_data_from_args(Obj         digraph_obj,
                                 Obj         max_obj,
                                 Obj*        group,
                                 CliqueData* data) {
-  if (DigraphNrVertices(digraph_obj) > MAXVERTS) {
-    MAXVERTS = DigraphNrVertices(digraph_obj) + 1;
+  if (DigraphNrVertices(digraph_obj) > CLIQUES_DATA_CURRENT_NUM_NODES) {
+    CLIQUES_DATA_CURRENT_NUM_NODES = DigraphNrVertices(digraph_obj) + 1;
     // FIXME this leaks everywhere
-    // TODO double MAXVERTS instead of just increasing to
+    // TODO double CLIQUES_DATA_CURRENT_NUM_NODES instead of just increasing to
 
-    data->graph = new_graph(MAXVERTS);
+    data->graph = new_graph(CLIQUES_DATA_CURRENT_NUM_NODES);
 
     // Currently Conditions are a nr1 x nr1 array of BitArrays, so both
-    // values have to be set to MAXVERTS
-    data->clique = new_bit_array(MAXVERTS);
-    data->try_   = new_conditions(MAXVERTS, MAXVERTS);
-    data->ban    = new_conditions(MAXVERTS, MAXVERTS);
-    data->to_try = new_conditions(MAXVERTS, MAXVERTS);
+    // values have to be set to CLIQUES_DATA_CURRENT_NUM_NODES
+    data->clique = new_bit_array(CLIQUES_DATA_CURRENT_NUM_NODES);
+    data->try_   = new_conditions(CLIQUES_DATA_CURRENT_NUM_NODES,
+                                CLIQUES_DATA_CURRENT_NUM_NODES);
+    data->ban    = new_conditions(CLIQUES_DATA_CURRENT_NUM_NODES,
+                               CLIQUES_DATA_CURRENT_NUM_NODES);
+    data->to_try = new_conditions(CLIQUES_DATA_CURRENT_NUM_NODES,
+                                  CLIQUES_DATA_CURRENT_NUM_NODES);
 
     data->orbit         = Fail;
-    data->temp_bitarray = new_bit_array(MAXVERTS);
+    data->temp_bitarray = new_bit_array(CLIQUES_DATA_CURRENT_NUM_NODES);
   }
 
   uint16_t nr = DigraphNrVertices(digraph_obj);
@@ -655,7 +660,7 @@ Obj FuncDigraphsCliquesFinder(Obj self, Obj args) {
   }
   // Check if include and exclude have empty intersection
   if (include_size != 0 && exclude_size != 0) {
-    bool* lookup = calloc(MAXVERTS, sizeof(bool));
+    bool* lookup = calloc(CLIQUES_DATA_CURRENT_NUM_NODES, sizeof(bool));
     for (UInt i = 1; i <= include_size; ++i) {
       lookup[INT_INTOBJ(ELM_LIST(include_obj, i)) - 1] = true;
     }

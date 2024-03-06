@@ -44,8 +44,8 @@
 #include "digraphs-config.h"  // for DIGRAPHS_HAVE___BUILTIN_CTZLL
 #include "digraphs-debug.h"   // for DIGRAPHS_ASSERT
 #include "homos-graphs.h"     // for Digraph, Graph, . . .
-#include "perms.h"            // for MAXVERTS, UNDEFINED, PermColl, Perm
-#include "schreier-sims.h"    // for PermColl, . . .
+#include "perms.h"  // for HOMOS_DATA_CURRENT_NUM_NODES, UNDEFINED, PermColl, Perm
+#include "schreier-sims.h"  // for PermColl, . . .
 
 #ifdef DIGRAPHS_WITH_INCLUDED_BLISS
 #include "bliss-0.73/bliss_C.h"  // for bliss_digraphs_release, . . .
@@ -143,6 +143,9 @@ extern Obj LargestMovedPointPerms;
 // 3. Global variables
 ////////////////////////////////////////////////////////////////////////////////
 
+static uint16_t UNDEFINED                    = -1;
+uint16_t        HOMOS_DATA_CURRENT_NUM_NODES = 0;
+
 static Obj GAP_FUNC;  // Variable to hold a GAP level hook function
 
 static Obj (*HOOK)(void*,  // HOOK function applied to every homo found
@@ -188,7 +191,7 @@ static PermColl**    STAB_GENS = NULL;  // stabiliser generators
 static SchreierSims* SCHREIER_SIMS;
 
 static uint16_t CURRENT_MAX_VERTS = 0;
-#ifdef DIGRAPHS_ENABLE_STATS
+
 struct homo_stats_struct {
   time_t last_print;
   size_t max_depth;
@@ -230,7 +233,6 @@ static inline void update_stats(HomoStats* stats, uint64_t depth) {
     stats->last_print = time(0);
   }
 }
-#endif  // DIGRAPHS_ENABLE_STATS
 
 ////////////////////////////////////////////////////////////////////////////////
 // 4. Hook functions
@@ -340,7 +342,7 @@ static void init_digraph_from_digraph_obj(Digraph* const digraph,
   DIGRAPHS_ASSERT(CALL_1ARGS(IsDigraph, digraph_obj) == True);
   UInt const nr  = DigraphNrVertices(digraph_obj);
   Obj        out = FuncOutNeighbours(0L, digraph_obj);
-  // DIGRAPHS_ASSERT(nr < MAXVERTS);
+  // DIGRAPHS_ASSERT(nr < HOMOS_DATA_CURRENT_NUM_NODES);
   DIGRAPHS_ASSERT(IS_PLIST(out));
   clear_digraph(digraph, nr);
 
@@ -375,7 +377,7 @@ static void init_graph_from_digraph_obj(Graph* const graph,
   DIGRAPHS_ASSERT(CALL_1ARGS(IsSymmetricDigraph, digraph_obj) == True);
   UInt const nr  = DigraphNrVertices(digraph_obj);
   Obj        out = FuncOutNeighbours(0L, digraph_obj);
-  // DIGRAPHS_ASSERT(nr < MAXVERTS);
+  // DIGRAPHS_ASSERT(nr < HOMOS_DATA_CURRENT_NUM_NODES);
   DIGRAPHS_ASSERT(IS_PLIST(out));
   clear_graph(graph, nr);
 
@@ -642,14 +644,14 @@ static void find_graph_homos(uint16_t        depth,
       STORE_MIN_BREAK(min, next, n, i);
     }
   }
-  printf("\n");
-  printf("%u\n", MAXVERTS);
-  printf("%u\n", GRAPH1->nr_vertices);
-  printf("%u\n", GRAPH2->nr_vertices);
-  printf("%u\n", next);
-  printf("%u\n", depth);
-  printf("%u\n", GRAPH1->neighbours[pos]);
-  print_bit_array(MAP_UNDEFINED[depth]);
+  // printf("\n");
+  // printf("%u\n", HOMOS_DATA_CURRENT_NUM_NODES);
+  // printf("%u\n", GRAPH1->nr_vertices);
+  // printf("%u\n", GRAPH2->nr_vertices);
+  // printf("%u\n", next);
+  // printf("%u\n", depth);
+  // printf("%u\n", GRAPH1->neighbours[pos]);
+  // print_bit_array(MAP_UNDEFINED[depth]);
   DIGRAPHS_ASSERT(get_bit_array(MAP_UNDEFINED[depth], next));
 
   if (rank < hint) {
@@ -1612,50 +1614,60 @@ static bool init_data_from_args(Obj digraph1_obj,
                                 Obj aut_grp_obj) {
   uint16_t largest_graph_vertex_count =
       MAX(DigraphNrVertices(digraph1_obj), DigraphNrVertices(digraph2_obj));
-  uint16_t calculated_maxverts = MAX(MAXVERTS, largest_graph_vertex_count);
+  uint16_t calculated_maxverts =
+      MAX(HOMOS_DATA_CURRENT_NUM_NODES, largest_graph_vertex_count);
 
-  if (calculated_maxverts > MAXVERTS) {
+  if (calculated_maxverts > HOMOS_DATA_CURRENT_NUM_NODES) {
     // TODO check that calculated_maxverts < 2 ^ 16 - 1, and give an error in
     // that case
     // clear_initialised_structures();
     // FIXME this leaks memory since nothing is freed
-    set_maxverts(calculated_maxverts);
-    assert(MAXVERTS == calculated_maxverts);
+    HOMOS_DATA_CURRENT_NUM_NODES = calculated_maxverts;
+    assert(HOMOS_DATA_CURRENT_NUM_NODES == calculated_maxverts);
     // srand(time(0));
 #ifdef DIGRAPHS_ENABLE_STATS
     STATS = malloc(sizeof(HomoStats));
 #endif
 
-    DIGRAPH1 = new_digraph(MAXVERTS);
-    DIGRAPH2 = new_digraph(MAXVERTS);
+    DIGRAPH1 = new_digraph(HOMOS_DATA_CURRENT_NUM_NODES);
+    DIGRAPH2 = new_digraph(HOMOS_DATA_CURRENT_NUM_NODES);
 
-    GRAPH1 = new_graph(MAXVERTS);
-    GRAPH2 = new_graph(MAXVERTS);
+    GRAPH1 = new_graph(HOMOS_DATA_CURRENT_NUM_NODES);
+    GRAPH2 = new_graph(HOMOS_DATA_CURRENT_NUM_NODES);
 
-    IMAGE_RESTRICT   = new_bit_array(MAXVERTS);
-    ORB_LOOKUP       = new_bit_array(MAXVERTS);
-    REPS             = malloc(MAXVERTS * sizeof(BitArray*));
-    BIT_ARRAY_BUFFER = (BitArray**) calloc(MAXVERTS, sizeof(BitArray*));
-    MAP_UNDEFINED    = (BitArray**) calloc(MAXVERTS, sizeof(BitArray*));
-    BLISS_GRAPH      = (BlissGraph**) calloc(3 * MAXVERTS, sizeof(BlissGraph*));
-    MAP              = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    COLORS2          = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    INVERSE_ORDER    = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    MAP_BUFFER       = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    ORB              = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    ORDER            = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-    STAB_GENS        = (PermColl**) calloc(MAXVERTS, sizeof(PermColl*));
+    IMAGE_RESTRICT = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+    ORB_LOOKUP     = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+    REPS           = malloc(HOMOS_DATA_CURRENT_NUM_NODES * sizeof(BitArray*));
+    BIT_ARRAY_BUFFER =
+        (BitArray**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(BitArray*));
+    MAP_UNDEFINED =
+        (BitArray**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(BitArray*));
+    BLISS_GRAPH = (BlissGraph**) calloc(3 * HOMOS_DATA_CURRENT_NUM_NODES,
+                                        sizeof(BlissGraph*));
+    MAP = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    COLORS2 =
+        (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    INVERSE_ORDER =
+        (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    MAP_BUFFER =
+        (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    ORB   = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    ORDER = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+    STAB_GENS =
+        (PermColl**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(PermColl*));
 
-    for (uint16_t i = 0; i < MAXVERTS; i++) {
+    for (uint16_t i = 0; i < HOMOS_DATA_CURRENT_NUM_NODES; i++) {
       BLISS_GRAPH[i]      = bliss_digraphs_new(i);
-      REPS[i]             = new_bit_array(MAXVERTS);
-      BIT_ARRAY_BUFFER[i] = new_bit_array(MAXVERTS);
-      MAP_UNDEFINED[i]    = new_bit_array(MAXVERTS);
-      STAB_GENS[i]        = new_perm_coll(MAXVERTS, MAXVERTS);
+      REPS[i]             = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+      BIT_ARRAY_BUFFER[i] = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+      MAP_UNDEFINED[i]    = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+      STAB_GENS[i]        = new_perm_coll(HOMOS_DATA_CURRENT_NUM_NODES,
+                                   HOMOS_DATA_CURRENT_NUM_NODES);
     }
-    VALS          = new_bit_array(MAXVERTS);
-    CONDITIONS    = new_conditions(MAXVERTS, MAXVERTS);
-    SCHREIER_SIMS = new_schreier_sims(MAXVERTS);
+    VALS          = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+    CONDITIONS    = new_conditions(HOMOS_DATA_CURRENT_NUM_NODES,
+                                HOMOS_DATA_CURRENT_NUM_NODES);
+    SCHREIER_SIMS = new_schreier_sims();
   }
 #ifdef DIGRAPHS_ENABLE_STATS
   clear_stats(STATS);
@@ -1850,7 +1862,7 @@ static bool init_data_from_args(Obj digraph1_obj,
 }
 
 // FIXME this doesn't work
-static bool clear_initialised_structures() {
+static void clear_initialised_structures() {
   free(DIGRAPH1);
   free(DIGRAPH2);
   free(GRAPH1);
@@ -1859,27 +1871,37 @@ static bool clear_initialised_structures() {
   // TODO: CLEAR THE BIT ARRAYS
   free(IMAGE_RESTRICT);
   free(ORB_LOOKUP);
-  // IMAGE_RESTRICT = new_bit_array(CALCULATED_MAXVERTS);
-  // ORB_LOOKUP     = new_bit_array(CALCULATED_MAXVERTS);
-  REPS             = malloc(MAXVERTS * sizeof(BitArray*));
-  BIT_ARRAY_BUFFER = (BitArray**) calloc(MAXVERTS, sizeof(BitArray*));
-  MAP_UNDEFINED    = (BitArray**) calloc(MAXVERTS, sizeof(BitArray*));
-  BLISS_GRAPH      = (BlissGraph**) calloc(3 * MAXVERTS, sizeof(BlissGraph*));
-  MAP              = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  COLORS2          = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  INVERSE_ORDER    = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  MAP_BUFFER       = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  ORB              = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  ORDER            = (uint16_t*) calloc(MAXVERTS, sizeof(uint16_t));
-  STAB_GENS        = (PermColl**) calloc(MAXVERTS, sizeof(PermColl*));
+  // IMAGE_RESTRICT =
+  // new_bit_array(CALCULATED_HOMOS_DATA_CURRENT_NUM_NODES);
+  // ORB_LOOKUP     =
+  // new_bit_array(CALCULATED_HOMOS_DATA_CURRENT_NUM_NODES);
+  REPS = malloc(HOMOS_DATA_CURRENT_NUM_NODES * sizeof(BitArray*));
+  BIT_ARRAY_BUFFER =
+      (BitArray**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(BitArray*));
+  MAP_UNDEFINED =
+      (BitArray**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(BitArray*));
+  BLISS_GRAPH = (BlissGraph**) calloc(3 * HOMOS_DATA_CURRENT_NUM_NODES,
+                                      sizeof(BlissGraph*));
+  MAP     = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  COLORS2 = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  INVERSE_ORDER =
+      (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  MAP_BUFFER =
+      (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  ORB   = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  ORDER = (uint16_t*) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(uint16_t));
+  STAB_GENS =
+      (PermColl**) calloc(HOMOS_DATA_CURRENT_NUM_NODES, sizeof(PermColl*));
 
-  for (uint16_t i = 0; i < MAXVERTS; i++) {
+  for (uint16_t i = 0; i < HOMOS_DATA_CURRENT_NUM_NODES; i++) {
     // Memory leaks here
     // BLISS_GRAPH[i]      = bliss_digraphs_new(i);
     free_bit_array(REPS[i]);
     free_bit_array(BIT_ARRAY_BUFFER[i]);
     free_bit_array(MAP_UNDEFINED[i]);
-    // STAB_GENS[i] = new_perm_coll(CALCULATED_MAXVERTS, CALCULATED_MAXVERTS);
+    // STAB_GENS[i] =
+    // new_perm_coll(CALCULATED_HOMOS_DATA_CURRENT_NUM_NODES,
+    // CALCULATED_HOMOS_DATA_CURRENT_NUM_NODES);
   }
   free(BLISS_GRAPH);
   free(REPS);
@@ -1900,8 +1922,8 @@ static void free_homos_data() {
   free(GRAPH1);
   free(GRAPH2);
   free(IMAGE_RESTRICT);
-  ORB_LOOKUP = new_bit_array(MAXVERTS);
-  for (uint16_t i = 0; i < MAXVERTS; i++) {
+  ORB_LOOKUP = new_bit_array(HOMOS_DATA_CURRENT_NUM_NODES);
+  for (uint16_t i = 0; i < HOMOS_DATA_CURRENT_NUM_NODES; i++) {
     free(BLISS_GRAPH[i]);
     free(REPS[i]);
     free(BIT_ARRAY_BUFFER[i]);
