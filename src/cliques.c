@@ -203,9 +203,10 @@ static bool init_data_from_args(Obj         digraph_obj,
                                 Obj         max_obj,
                                 Obj*        group,
                                 CliqueData* data) {
-  static bool is_initialised = false;
-  if (!is_initialised) {
-    is_initialised = true;
+  if (DigraphNrVertices(digraph_obj) > MAXVERTS) {
+    MAXVERTS = DigraphNrVertices(digraph_obj) + 1;
+    // FIXME this leaks everywhere
+    // TODO double MAXVERTS instead of just increasing to
 
     data->graph = new_graph(MAXVERTS);
 
@@ -473,14 +474,16 @@ Obj FuncDigraphsCliquesFinder(Obj self, Obj args) {
   }
 
   // Validate the arguments
+  // TODO move this elsewhere
+  Int absolute_max_verts = 65535;
   if (CALL_1ARGS(IsDigraph, digraph_obj) != True) {
     ErrorQuit("the 1st argument <digraph> must be a digraph, not %s,",
               (Int) TNAM_OBJ(digraph_obj),
               0L);
-  } else if (DigraphNrVertices(digraph_obj) > MAXVERTS) {
+  } else if (DigraphNrVertices(digraph_obj) > absolute_max_verts) {
     ErrorQuit("the 1st argument <digraph> must have at most %d vertices, "
               "found %d,",
-              MAXVERTS,
+              absolute_max_verts,
               DigraphNrVertices(digraph_obj));
   }
   if (hook_obj == Fail) {
