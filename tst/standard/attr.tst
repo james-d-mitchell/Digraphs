@@ -1544,6 +1544,8 @@ gap> ChromaticNumber(a);
 49
 gap> ChromaticNumber(b);
 49
+gap> D := DigraphFromGraph6String("ElNG");
+<immutable symmetric digraph with 6 vertices, 18 edges>
 gap> ChromaticNumber(D);
 3
 gap> IsBiconnectedDigraph(D);
