@@ -20,11 +20,11 @@
 // Digraphs package headers
 #include "digraphs-debug.h"  // for DIGRAPHS_ASSERT
 
-uint16_t MAXVERTS = 512;
-uint16_t UNDEFINED = 512+1;
+uint16_t MAXVERTS  = 0;
+uint16_t UNDEFINED = -1;
 
-void set_maxverts(uint16_t maxverts){
-  MAXVERTS = maxverts;
+void set_maxverts(uint16_t maxverts) {
+  MAXVERTS  = maxverts;
   UNDEFINED = maxverts + 1;
 }
 
