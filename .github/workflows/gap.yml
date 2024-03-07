@@ -28,6 +28,7 @@ jobs:
           - stable-4.12
         pkgs-to-clone:
           - NautyTracesInterface
+          - digraphs/graphviz
         ABI: ['']
 
         include:
