@@ -42,13 +42,14 @@ D -> IsConnectedDigraph(D) and IsEmpty(Bridges(D)));
 # by Ralph Freese et. al.
 BindGlobal("DIGRAPHS_MeetJoinTable",
 function(D, P, U, join)
-  local ord, tab, S, N, i, x, T, l, q, z, y;
+  local N, tab, adj, ord, S, T, l, q, z, i, x, y;
 
   # The algorithm runs for joins where the argument <join> is true. Otherwise
   # it is run for meets.
 
   N   := DigraphNrVertices(D);
   tab := List([1 .. N], x -> []);  # table of meets/joins
+  adj := BooleanAdjacencyMatrix(D);
 
   ord := [];
   for i in [1 .. N] do
@@ -77,9 +78,9 @@ function(D, P, U, join)
         fi;
       od;
       for z in T do
-        if join and not IsDigraphEdge(D, q, z) then
+        if join and not adj[q, z] then
           return fail;
-        elif not join and not IsDigraphEdge(D, z, q) then
+        elif not join and not adj[z, q] then
           return fail;
         fi;
       od;

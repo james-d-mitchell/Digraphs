@@ -546,7 +546,7 @@ function(digraph, hook, user_param, limit, include, exclude, max, size, reps)
   local n, subgraph, group, vertices, include_variant, exclude_variant,
         invariant_include, include_invariant, invariant_exclude,
         exclude_invariant, x, v, o, i, out, found_orbits, num_found,
-        hook_wrapper;
+        hook_wrapper, pt;
 
   if not IsDigraph(digraph) then
     ErrorNoReturn("the 1st argument <D> must be a digraph,");
@@ -673,7 +673,7 @@ function(digraph, hook, user_param, limit, include, exclude, max, size, reps)
     else
 
       # Function to find the valid cliques of an orbit given an orbit rep
-      found_orbits := [];
+      found_orbits := HashMap();
       num_found := 0;
       if hook = fail then
         hook := Add;
@@ -683,10 +683,14 @@ function(digraph, hook, user_param, limit, include, exclude, max, size, reps)
         local orbit, n, new_found, i;
 
         new_found := 0;
-        if not ForAny(found_orbits, x -> clique in x) then
+        if not clique in found_orbits then
+          # FIXME we don't require the Orb package so how are we using Orb
+          # here?
           orbit := Orb(group, clique, OnSets);
           Enumerate(orbit);
-          Add(found_orbits, orbit);
+          for pt in orbit do
+            found_orbits[pt] := true;
+          od;
           n := Length(orbit);
 
           if invariant_include and invariant_exclude then
@@ -776,7 +780,7 @@ end);
 InstallGlobalFunction(DIGRAPHS_BronKerbosch,
 function(D, hook, param, lim, inc, exc, max, size, reps, inc_var, exc_var)
   local vtx, invariant_inc, invariant_exc, invariant, adj, exc_inv, start,
-  possible, isolated, grp, found_orbits, add, bk, num, x, gen;
+  possible, isolated, grp, found_orbits, add, bk, num, x, gen, pt;
 
   # Arguments must be:
   # D   - a digraph
@@ -860,7 +864,7 @@ function(D, hook, param, lim, inc, exc, max, size, reps, inc_var, exc_var)
     grp := AutomorphismGroup(D);
   fi;
 
-  found_orbits := [];
+  found_orbits := HashMap();
 
   # Function to find the valid cliques of an orbit given an orbit rep
   add := function(c)
@@ -871,10 +875,12 @@ function(D, hook, param, lim, inc, exc, max, size, reps, inc_var, exc_var)
       hook(param, c);
       num := num + 1;
       return;
-    elif not ForAny(found_orbits, x -> c in x) then
+    elif not c in found_orbits then
       orb := Orb(grp, c, OnSets);
       Enumerate(orb);
-      Add(found_orbits, orb);
+      for pt in orb do
+        found_orbits[pt] := true;
+      od;
       n := Length(orb);
 
       if invariant then  # we're not just looking for orbit reps, but inc and

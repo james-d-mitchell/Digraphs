@@ -1157,6 +1157,8 @@ function(D, u, v)
 
   if u > n or v > n or u <= 0 or v <= 0 then
     return false;
+  elif HasBooleanAdjacencyMatrix(D) then
+    return BooleanAdjacencyMatrix(D)[u][v] <> 0;
   elif HasAdjacencyMatrix(D) then
     return AdjacencyMatrix(D)[u][v] <> 0;
   elif IsDigraphWithAdjacencyFunction(D) then
