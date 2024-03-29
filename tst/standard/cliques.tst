@@ -192,15 +192,15 @@ gap> gr := CompleteDigraph(10);;
 gap> DigraphMaximalIndependentSetsRepsAttr(gr);
 [ [ 1 ] ]
 gap> DigraphMaximalIndependentSetsAttr(gr);
-[ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ] ]
+[ [ 8 ], [ 10 ], [ 3 ], [ 2 ], [ 6 ], [ 9 ], [ 4 ], [ 5 ], [ 7 ], [ 1 ] ]
 
 #  DigraphMaximalIndependentSets and DigraphIndependentSets
 gap> gr := ChainDigraph(2);;
 gap> DigraphMaximalIndependentSets(gr);
-[ [ 1 ], [ 2 ] ]
+[ [ 2 ], [ 1 ] ]
 gap> gr := CompleteDigraph(2);;
 gap> DigraphMaximalIndependentSets(gr);
-[ [ 1 ], [ 2 ] ]
+[ [ 2 ], [ 1 ] ]
 gap> gr := DigraphFromDigraph6String("&FWsK?WSKC?");
 <immutable digraph with 7 vertices, 14 edges>
 gap> DigraphMaximalIndependentSetsReps(gr);
@@ -270,11 +270,11 @@ Error, there must be at least 1 argument,
 gap> DigraphMaximalCliquesReps(gr);
 [ [ 1 ] ]
 gap> DigraphMaximalCliquesAttr(gr);
-[ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ]
+[ [ 3 ], [ 2 ], [ 4 ], [ 5 ], [ 1 ] ]
 gap> DigraphMaximalCliques();
 Error, there must be at least 1 argument,
 gap> DigraphMaximalCliques(gr);
-[ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ]
+[ [ 3 ], [ 2 ], [ 4 ], [ 5 ], [ 1 ] ]
 gap> gr := EmptyDigraph(1);;
 gap> DigraphMaximalCliques(gr);
 [ [ 1 ] ]
@@ -456,17 +456,17 @@ gap> gr := DigraphFromSparse6String(":~?@c__EC?_F");
 gap> DigraphMaximalCliquesReps(gr);
 [ [ 1 ], [ 2, 3, 5 ] ]
 gap> DigraphMaximalCliques(gr);
-[ [ 1 ], [ 4 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ], [ 13 ], 
-  [ 14 ], [ 15 ], [ 16 ], [ 17 ], [ 18 ], [ 19 ], [ 20 ], [ 21 ], [ 22 ], 
-  [ 23 ], [ 24 ], [ 25 ], [ 26 ], [ 27 ], [ 28 ], [ 29 ], [ 30 ], [ 31 ], 
-  [ 32 ], [ 33 ], [ 34 ], [ 35 ], [ 36 ], [ 37 ], [ 38 ], [ 39 ], [ 40 ], 
-  [ 41 ], [ 42 ], [ 43 ], [ 44 ], [ 45 ], [ 46 ], [ 47 ], [ 48 ], [ 49 ], 
-  [ 50 ], [ 51 ], [ 52 ], [ 53 ], [ 54 ], [ 55 ], [ 56 ], [ 57 ], [ 58 ], 
-  [ 59 ], [ 60 ], [ 61 ], [ 62 ], [ 63 ], [ 64 ], [ 65 ], [ 66 ], [ 67 ], 
-  [ 68 ], [ 69 ], [ 70 ], [ 71 ], [ 72 ], [ 73 ], [ 74 ], [ 75 ], [ 76 ], 
-  [ 77 ], [ 78 ], [ 79 ], [ 80 ], [ 81 ], [ 82 ], [ 83 ], [ 84 ], [ 85 ], 
-  [ 86 ], [ 87 ], [ 88 ], [ 89 ], [ 90 ], [ 91 ], [ 92 ], [ 93 ], [ 94 ], 
-  [ 95 ], [ 96 ], [ 97 ], [ 98 ], [ 99 ], [ 100 ], [ 2, 3, 5 ] ]
+[ [ 68 ], [ 4 ], [ 33 ], [ 22 ], [ 43 ], [ 97 ], [ 94 ], [ 52 ], [ 60 ], 
+  [ 67 ], [ 10 ], [ 71 ], [ 18 ], [ 46 ], [ 55 ], [ 56 ], [ 73 ], [ 37 ], 
+  [ 98 ], [ 54 ], [ 6 ], [ 34 ], [ 81 ], [ 1 ], [ 41 ], [ 64 ], [ 25 ], 
+  [ 24 ], [ 51 ], [ 72 ], [ 80 ], [ 74 ], [ 27 ], [ 92 ], [ 89 ], [ 69 ], 
+  [ 35 ], [ 93 ], [ 57 ], [ 91 ], [ 36 ], [ 84 ], [ 32 ], [ 77 ], [ 8 ], 
+  [ 38 ], [ 63 ], [ 20 ], [ 26 ], [ 48 ], [ 30 ], [ 14 ], [ 75 ], [ 50 ], 
+  [ 9 ], [ 42 ], [ 47 ], [ 40 ], [ 44 ], [ 62 ], [ 19 ], [ 16 ], [ 87 ], 
+  [ 85 ], [ 23 ], [ 59 ], [ 95 ], [ 61 ], [ 17 ], [ 70 ], [ 76 ], [ 82 ], 
+  [ 53 ], [ 65 ], [ 21 ], [ 15 ], [ 7 ], [ 11 ], [ 90 ], [ 58 ], [ 12 ], 
+  [ 79 ], [ 96 ], [ 49 ], [ 83 ], [ 45 ], [ 2, 3, 5 ], [ 99 ], [ 100 ], 
+  [ 13 ], [ 31 ], [ 39 ], [ 88 ], [ 78 ], [ 28 ], [ 29 ], [ 66 ], [ 86 ] ]
 
 # Test CliqueNumber
 gap> CliqueNumber(NullDigraph(10));
@@ -498,7 +498,7 @@ gap> cliques := DigraphMaximalCliquesReps(D);
 gap> IsMutable(cliques) or ForAny(cliques, IsMutable);
 false
 gap> cliques := DigraphMaximalCliques(D);
-[ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 3, 4 ] ]
+[ [ 1, 2, 3 ], [ 3, 4 ], [ 4, 5, 6 ] ]
 gap> IsMutable(cliques) or ForAny(cliques, IsMutable);
 false
 gap> cliques := DigraphMaximalCliques(D, [1]);

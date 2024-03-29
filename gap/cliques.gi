@@ -10,6 +10,26 @@
 #############################################################################
 ##
 
+BindGlobal("MultiOrbit",
+function(G, set, hashmap)
+  local gens, o, im, pt, g;
+
+  gens := GeneratorsOfGroup(G);
+  o    := [set];
+  Assert(1, not set in hashmap);
+  hashmap[set] := true;
+  for pt in o do
+    for g in gens do
+      im := OnSets(pt, g);
+      if not im in hashmap then
+        hashmap[im] := true;
+        Add(o, im);
+      fi;
+    od;
+  od;
+  return o;
+end);
+
 InstallMethod(CliqueNumber, "for a digraph", [IsDigraph],
 D -> Maximum(List(DigraphMaximalCliquesReps(D), Length)));
 
@@ -519,16 +539,13 @@ function(arg)
       out := cliques;
     else
       # Act on the representatives to find all
-      orbits := [];
-      out := [];
+      orbits := HashMap();
       for c in cliques do
-        if not ForAny(orbits, x -> c in x) then
-          orb := Orb(G, c, OnSets);
-          Enumerate(orb);
-          Add(orbits, orb);
-          Append(out, orb);
+        if not c in orbits then
+          MultiOrbit(G, c, orbits);
         fi;
       od;
+      out := Keys(orbits);
     fi;
     if IsImmutableDigraph(D) then
       SetDigraphMaximalCliquesAttr(D, out);
@@ -546,7 +563,7 @@ function(digraph, hook, user_param, limit, include, exclude, max, size, reps)
   local n, subgraph, group, vertices, include_variant, exclude_variant,
         invariant_include, include_invariant, invariant_exclude,
         exclude_invariant, x, v, o, i, out, found_orbits, num_found,
-        hook_wrapper, pt;
+        hook_wrapper;
 
   if not IsDigraph(digraph) then
     ErrorNoReturn("the 1st argument <D> must be a digraph,");
@@ -684,13 +701,7 @@ function(digraph, hook, user_param, limit, include, exclude, max, size, reps)
 
         new_found := 0;
         if not clique in found_orbits then
-          # FIXME we don't require the Orb package so how are we using Orb
-          # here?
-          orbit := Orb(group, clique, OnSets);
-          Enumerate(orbit);
-          for pt in orbit do
-            found_orbits[pt] := true;
-          od;
+          orbit := MultiOrbit(group, clique, found_orbits);
           n := Length(orbit);
 
           if invariant_include and invariant_exclude then
@@ -876,11 +887,7 @@ function(D, hook, param, lim, inc, exc, max, size, reps, inc_var, exc_var)
       num := num + 1;
       return;
     elif not c in found_orbits then
-      orb := Orb(grp, c, OnSets);
-      Enumerate(orb);
-      for pt in orb do
-        found_orbits[pt] := true;
-      od;
+      orb := MultiOrbit(grp, c, found_orbits);
       n := Length(orb);
 
       if invariant then  # we're not just looking for orbit reps, but inc and
