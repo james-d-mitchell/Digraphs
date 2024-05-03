@@ -1,351 +1,225 @@
 #############################################################################
 ##
 ##  display.gi
-##  Copyright (C) 2014-21                                James D. Mitchell
+##  Copyright (C) 2014-24                                James D. Mitchell
 ##
 ##  Licensing information can be found in the README file of this package.
 ##
 #############################################################################
 ##
-# AN's code, adapted by WW
 
-BindGlobal("GV_DIGRAPHS_DotDigraph",
-function(D, node_funcs, edge_funcs)
-  local out, nodes, tail, head, node, edge, graph, i, func, j, l;
+# TODO:
+# * add graph6 string or whatever as a comment at the start of the string
+# * check JupyterInterface Splash function
+# * for edge colored non-digraphs, should ensure that the edge colors are
+# symmetric, i.e. the same colors for x -> y and y -> x
 
-  graph := GraphvizDigraph("hgn");
-  GraphvizSetAttr(graph, "node [shape=\"circle\"]");
+#############################################################################
+# Graphs and digraphs
+#############################################################################
 
-  for i in DigraphVertices(D) do
-    node := GraphvizAddNode(graph, StringFormatted("{}", i));
-    for func in node_funcs do
-      func(graph, node, i);
-    od;
-  od;
-
-  nodes := GraphvizNodes(graph);
-  out := OutNeighbours(D);
-  for i in DigraphVertices(D) do
-    l := Length(out[i]);
-    for j in [1 .. l] do
-      tail := nodes[String(i)];
-      head := nodes[String(out[i][j])];
-      edge := GraphvizAddEdge(graph, tail, head);
-      for func in edge_funcs do
-        func(graph, edge, i, j);
-      od;
-    od;
-  od;
-  return graph;
-end);
-
-BindGlobal("GV_DIGRAPHS_ValidRGBValue",
-function(str)
-  local l, chars, x, i;
-  l := Length(str);
-  x := 0;
-  chars := "0123456789ABCDEFabcdef";
-  if l = 7 then
-    if str[1] = '#' then
-      for i in [2 .. l] do
-        if str[i] in chars then
-            x := x + 1;
-        fi;
-      od;
-    fi;
-  fi;
-  if x = (l - 1) then
-    return true;
-  else
-    return false;
-  fi;
-end);
-
-BindGlobal("GV_DIGRAPHS_GraphvizColorsList", fail);
-
-BindGlobal("GV_DIGRAPHS_GraphvizColors",
-function()
-  local f;
-  if GV_DIGRAPHS_GraphvizColorsList = fail then
-    f := IO_File(Concatenation(DIGRAPHS_Dir(), "/data/colors.p"));
-    MakeReadWriteGlobal("GV_DIGRAPHS_GraphvizColorsList");
-    GV_DIGRAPHS_GraphvizColorsList := IO_Unpickle(f);
-    MakeReadOnlyGlobal("GV_DIGRAPHS_GraphvizColorsList");
-    IO_Close(f);
-  fi;
-  return GV_DIGRAPHS_GraphvizColorsList;
-end);
-
-BindGlobal("GV_DIGRAPHS_ValidVertColors",
-function(D, verts)
-  local v, sum, colors, col;
-  v := DigraphVertices(D);
-  sum := 0;
-  if Length(verts) <> Length(v) then
-    ErrorNoReturn("the number of vertex colors must be the same as the number",
-    " of vertices, expected ", Length(v), " but found ", Length(verts), "");
-  fi;
-  colors := GV_DIGRAPHS_GraphvizColors();
-  if Length(verts) = Length(v) then
-    for col in verts do
-      if not IsString(col) then
-        ErrorNoReturn("expected a string");
-      elif GV_DIGRAPHS_ValidRGBValue(col) = false and
-          (col in colors) = false then
-        ErrorNoReturn("expected RGB Value or valid color name as defined",
-        " by GraphViz 2.44.1 X11 Color Scheme",
-        " http://graphviz.org/doc/info/colors.html");
-      else
-        sum := sum + 1;
-      fi;
-    od;
-    if sum = Length(verts) then
-      return true;
-    fi;
-  fi;
-end);
-
-BindGlobal("GV_DIGRAPHS_ValidEdgeColors",
-function(D, edge)
-  local out, l, counter, sum, colors, v, col;
-  out := OutNeighbours(D);
-  l := Length(edge);
-  counter := 0;
-  sum := 0;
-  colors := GV_DIGRAPHS_GraphvizColors();
-  if Length(edge) <> Length(out) then
-    ErrorNoReturn("the list of edge colors needs to have the",
-    " same shape as the out-neighbours of the digraph");
-  else
-    for v in [1 .. l] do
-      sum := 0;
-      if Length(out[v]) <> Length(edge[v]) then
-        ErrorNoReturn("the list of edge colors needs to have the",
-        " same shape as the out-neighbours of the digraph");
-      else
-        for col in edge[v] do
-          if not IsString(col) then
-            ErrorNoReturn("expected a string");
-          elif GV_DIGRAPHS_ValidRGBValue(col) = false and
-              (col in colors) = false then
-            ErrorNoReturn("expected RGB Value or valid color name as defined",
-            " by GraphViz 2.44.1 X11 Color Scheme",
-            " http://graphviz.org/doc/info/colors.html");
-          else
-            sum := sum + 1;
-          fi;
-        od;
-        if sum = Length(edge[v]) then
-          counter := counter + 1;
-        fi;
-      fi;
-    od;
-    if counter = Length(edge) then
-      return true;
-    fi;
-  fi;
-end);
-
-InstallMethod(GraphvizDotDigraph, "for a digraph by out-neighbours",
-[IsDigraphByOutNeighboursRep],
-D -> GV_DIGRAPHS_DotDigraph(D, [], []));
-
-InstallMethod(DotDigraph, "for a digraph by out-neighbours",
-[IsDigraphByOutNeighboursRep],
-D -> AsString(GraphvizDotDigraph(D)));
-
-InstallMethod(GraphvizDotColoredDigraph,
-"for a digraph by out-neighbours and two lists",
-[IsDigraphByOutNeighboursRep, IsList, IsList],
-function(D, vert, edge)
-  local vert_func, cond, edge_func;
-  cond := GV_DIGRAPHS_ValidVertColors(D, vert);
-  cond := cond and GV_DIGRAPHS_ValidEdgeColors(D, edge);
-  if cond then
-    vert_func := {g, n, i} -> GraphvizSetAttrs(n, rec(color := vert[i],
-                                                      style := "filled"));
-    edge_func := {g, e, i, j} -> GraphvizSetAttrs(e, rec(color := edge[i][j]));
-    return GV_DIGRAPHS_DotDigraph(D, [vert_func], [edge_func]);
-  fi;
-end);
-
-InstallMethod(DotColoredDigraph, "for a digraph by out-neighbours and two lists",
-[IsDigraphByOutNeighboursRep, IsList, IsList],
-{D, vert, edge} -> AsString(GraphvizDotColoredDigraph(D, vert, edge)));
-
-InstallMethod(GraphvizDotVertexColoredDigraph,
-"for a digraph by out-neighbours and a list",
-[IsDigraphByOutNeighboursRep, IsList],
-function(D, vert)
-  local func;
-  if GV_DIGRAPHS_ValidVertColors(D, vert) then
-    func := {g, n, i} -> GraphvizSetAttrs(n, rec(color := vert[i],
-                                                 style := "filled"));
-    return GV_DIGRAPHS_DotDigraph(D, [func], []);
-  fi;
-end);
-
-InstallMethod(DotVertexColoredDigraph,
-"for a digraph by out-neighbours and a list",
-[IsDigraphByOutNeighboursRep, IsList],
-{D, vert} -> AsString(GraphvizDotVertexColoredDigraph(D, vert)));
-
-InstallMethod(GraphvizDotEdgeColoredDigraph,
-"for a digraph by out-neighbours and a list",
-[IsDigraphByOutNeighboursRep, IsList],
-function(D, edge)
-  local func;
-  if GV_DIGRAPHS_ValidEdgeColors(D, edge) then
-    func := {g, e, i, j} -> GraphvizSetAttrs(e, rec(color := edge[i][j]));
-    return GV_DIGRAPHS_DotDigraph(D, [], [func]);
-  fi;
-end);
-
-InstallMethod(DotEdgeColoredDigraph,
-"for a digraph by out-neighbours and a list",
-[IsDigraphByOutNeighboursRep, IsList],
-{D, edge} -> AsString(GraphvizDotEdgeColoredDigraph(D, edge)));
-
-InstallMethod(GraphvizDotVertexLabelledDigraph,
-"for a digraph by out-neighbours",
+InstallOtherMethod(GraphvizDigraph, "for a digraph by out-neighbours",
 [IsDigraphByOutNeighboursRep],
 function(D)
-  local func;
-  func := {g, n, i} -> GraphvizSetAttrs(n, rec(label :=
-                                               DigraphVertexLabel(D, i)));
-    return GV_DIGRAPHS_DotDigraph(D, [func], []);
-end);
-
-InstallMethod(DotVertexLabelledDigraph, "for a digraph by out-neighbours",
-[IsDigraphByOutNeighboursRep],
-{D} -> AsString(GraphvizDotVertexLabelledDigraph(D)));
-
-BindGlobal("GV_DIGRAPHS_DotSymmetricDigraph",
-function(D, node_funcs, edge_funcs)
-  local graph, node, nodes, edge, out, n1, n2, i, j, func;
-  if not IsSymmetricDigraph(D) then
-    ErrorNoReturn("the argument <D> must be a symmetric digraph,");
-  fi;
-
-  out := OutNeighbours(D);
-
-  graph := GraphvizGraph("hgn");
-  GraphvizSetAttr(graph, "node [shape=\"circle\"]");
-  for i in DigraphVertices(D) do
-    node := GraphvizAddNode(graph, StringFormatted("{}", i));
-    for func in node_funcs do
-      func(graph, node, i);
+  local gv, x, y;
+  gv := GraphvizDigraph("hgn");
+  GraphvizSetAttr(gv, "node [shape=circle]");
+  for x in DigraphVertices(D) do
+    GraphvizAddNode(gv, x);
+  od;
+  for x in DigraphVertices(D) do
+    for y in OutNeighboursOfVertexNC(D, x) do
+      GraphvizAddEdge(gv, x, y);
     od;
   od;
+  return gv;
+end);
 
-  nodes := GraphvizNodes(graph);
-  for i in DigraphVertices(D) do
-    for j in [1 .. Length(out[i])] do
-      if out[i][j] >= i then
-        n1 := nodes[String(i)];
-        n2 := nodes[String(out[i][j])];
-        edge := GraphvizAddEdge(graph, n1, n2);
-        for func in edge_funcs do
-          func(graph, edge, i, j);
-        od;
+InstallOtherMethod(GraphvizGraph, "for a digraph by out-neighbours",
+[IsDigraphByOutNeighboursRep],
+function(D)
+  local gv, x, y;
+  if not IsSymmetricDigraph(D) then
+    ErrorNoReturn("the argument (a digraph) must be symmetric");
+  fi;
+  gv := GraphvizGraph("hgn");
+  GraphvizSetAttr(gv, "node [shape=circle]");
+  for x in DigraphVertices(D) do
+    GraphvizAddNode(gv, x);
+  od;
+  for x in DigraphVertices(D) do
+    for y in OutNeighboursOfVertexNC(D, x) do
+      if x > y then
+        GraphvizAddEdge(gv, x, y);
       fi;
     od;
   od;
-  return graph;
+  return gv;
 end);
 
-InstallMethod(GraphvizDotSymmetricDigraph, "for a digraph by out-neighbours",
-[IsDigraphByOutNeighboursRep],
-D -> GV_DIGRAPHS_DotSymmetricDigraph(D, [], []));
+#############################################################################
+# Vertex coloured graphs and digraphs
+#############################################################################
 
-InstallMethod(DotSymmetricDigraph, "for a digraph by out-neighbours",
-[IsDigraphByOutNeighboursRep],
-D -> AsString(GraphvizDotSymmetricDigraph(D)));
+InstallMethod(GraphvizVertexColoredDigraph, "for a digraph and a list",
+[IsDigraph, IsList],
+{D, colors} -> GraphvizSetNodeColors(GraphvizDigraph(D), colors));
 
-InstallMethod(GraphvizDotSymmetricColoredDigraph,
-"for a digraph by out-neighbours and two lists",
-[IsDigraphByOutNeighboursRep, IsList, IsList],
-function(D, vert, edge)
-  local vert_func, cond, edge_func;
-  cond := GV_DIGRAPHS_ValidVertColors(D, vert);
-  cond := cond and GV_DIGRAPHS_ValidEdgeColors(D, edge);
-  if cond then
-    vert_func := {g, n, i} -> GraphvizSetAttrs(n, rec(color := vert[i],
-                                                      style := "filled"));
-    edge_func := {g, e, i, j} -> GraphvizSetAttrs(e, rec(color := edge[i][j]));
-    return GV_DIGRAPHS_DotSymmetricDigraph(D, [vert_func], [edge_func]);
+InstallMethod(GraphvizVertexColoredGraph, "for a digraph and a list",
+[IsDigraph, IsList],
+# IsSymmetricDigraph checked by GraphvizGraph
+{D, colors} -> GraphvizSetNodeColors(GraphvizGraph(D), colors));
+
+#############################################################################
+# Edge coloured graphs and digraphs
+#############################################################################
+
+# This function is here rather than graphviz b/c otherwise if D has multiple
+# edges we can't reliably get the corresponding graphviz edge from the head and
+# tail of the edge from gv.
+BindGlobal("DIGRAPHS_ErrorIfNotEdgeColoring",
+function(D, colors)
+  local out, i;
+
+  out := OutNeighbours(D);
+  if Length(colors) <> Length(out) then
+    ErrorFormatted("the 2nd argument (edge colors) must have ",
+                   "the same number of entries as the 1st argument ",
+                   "(a digraph) has nodes, expected {} but found {}",
+                   Length(out),
+                   Length(colors));
   fi;
+  for i in [1 .. Length(colors)] do
+    if not IsList(colors[i]) then
+      ErrorFormatted("the 2nd argument (edge colors) must be ",
+                     "a list of lists, found {} in position {}",
+                     TNAM_OBJ(colors[i]),
+                     i);
+    elif Length(out[i]) <> Length(colors[i]) then
+      ErrorFormatted("the 2nd argument (edge colors) must have ",
+                     "the same shape as the out neighbours of the 1st ",
+                     "argument (a digraph), in position {} expected ",
+                     "a list of length {} but found list of length {}",
+                     i,
+                     Length(out[i]),
+                     Length(colors[i]));
+    fi;
+    Perform(colors[i], GV_ErrorIfNotValidColor);
+  od;
 end);
 
-InstallMethod(GraphvizDotSymmetricVertexColoredDigraph,
+BindGlobal("DIGRAPHS_AddEdgesAndColorsNC",
+function(D, gv, colors)
+  local out, e, n, i;
+
+  # This duplicates code in the GraphvizDigraph function because otherwise if D
+  # has multiple edges we can't reliably get the corresponding graphviz edge
+  # from the head and tail of the edge from gv.
+  out := OutNeighbours(D);
+  for n in DigraphVertices(D) do
+    for i in [1 .. Length(out[n])] do
+      if IsGVDigraph(gv) or n > out[n][i] then
+        e := GraphvizAddEdge(gv, n, out[n][i]);
+        GraphvizSetAttr(e, "color", colors[n][i]);
+      fi;
+    od;
+  od;
+  return gv;
+end);
+
+InstallMethod(GraphvizEdgeColoredDigraph,
 "for a digraph by out-neighbours and a list",
 [IsDigraphByOutNeighboursRep, IsList],
-function(D, vert)
-  local func;
-  if GV_DIGRAPHS_ValidVertColors(D, vert) then
-    func := {g, n, i} -> GraphvizSetAttrs(n, rec(color := vert[i],
-                                                 style := "filled"));
-    return GV_DIGRAPHS_DotSymmetricDigraph(D, [func], []);
-  fi;
+function(D, colors)
+  local gv;
+  DIGRAPHS_ErrorIfNotEdgeColoring(D, colors);
+  gv := GraphvizDigraph(NullDigraph(DigraphNrVertices(D)));
+  return DIGRAPHS_AddEdgesAndColorsNC(D, gv, colors);
 end);
 
-InstallMethod(GraphvizDotSymmetricEdgeColoredDigraph,
+InstallMethod(GraphvizEdgeColoredGraph,
 "for a digraph by out-neighbours and a list",
 [IsDigraphByOutNeighboursRep, IsList],
-function(D, edge)
-  local func;
-  if GV_DIGRAPHS_ValidEdgeColors(D, edge) then
-    func := {g, e, i, j} -> GraphvizSetAttrs(e, rec(color := edge[i][j]));
-    return GV_DIGRAPHS_DotSymmetricDigraph(D, [], [func]);
+function(D, colors)
+  local gv;
+  if not IsSymmetricDigraph(D) then
+    ErrorNoReturn("the argument (a digraph) must be symmetric");
   fi;
+  DIGRAPHS_ErrorIfNotEdgeColoring(D, colors);
+  gv := GraphvizGraph(NullDigraph(DigraphNrVertices(D)));
+  return DIGRAPHS_AddEdgesAndColorsNC(D, gv, colors);
 end);
 
-InstallMethod(DotSymmetricEdgeColoredDigraph,
-"for a digraph by out-neighbours and a list",
-[IsDigraphByOutNeighboursRep, IsList],
-{D, edge} -> AsString(GraphvizDotSymmetricEdgeColoredDigraph(D, edge)));
+#############################################################################
+# Vertex and edge coloured graphs and digraphs
+#############################################################################
 
-# CR's code
+InstallMethod(GraphvizColoredDigraph,
+"for a digraph, list, and list",
+[IsDigraph, IsList, IsList],
+{D, n_colors, e_colors} -> GraphvizSetNodeColors(
+                            GraphvizEdgeColoredDigraph(D, e_colors),
+                            n_colors));
 
-InstallMethod(GraphvizDotPartialOrderDigraph, "for a partial order digraph",
+InstallMethod(GraphvizColoredGraph,
+"for a digraph, list, and list",
+[IsDigraph, IsList, IsList],
+# IsSymmetricDigraph checked by GraphvizEdgeColoredGraph
+{D, n_colors, e_colors} -> GraphvizSetNodeColors(
+                            GraphvizEdgeColoredGraph(D, e_colors),
+                            n_colors));
+
+#############################################################################
+# Vertex labelled graphs and digraphs
+#############################################################################
+
+InstallMethod(GraphvizVertexLabelledDigraph, "for a digraph",
+[IsDigraph],
+D -> GraphvizSetNodeLabels(GraphvizDigraph(D), DigraphVertexLabels(D)));
+
+InstallMethod(GraphvizVertexLabelledGraph, "for a digraph",
+[IsDigraph],
+# symmetry checked in GraphvizGraph
+D -> GraphvizSetNodeLabels(GraphvizGraph(D), DigraphVertexLabels(D)));
+
+#############################################################################
+# Partial and preorder digraphs
+#############################################################################
+
+InstallMethod(GraphvizPartialOrderDigraph, "for a partial order digraph",
 [IsDigraph],
 function(D)
   if not IsPartialOrderDigraph(D) then
-    ErrorNoReturn("the argument <D> must be a partial order digraph,");
+    ErrorNoReturn("the argument (a digraph) must be a partial order");
   fi;
   D := DigraphMutableCopyIfMutable(D);
-  return GraphvizDotDigraph(DigraphReflexiveTransitiveReduction(D));
+  return GraphvizDigraph(DigraphReflexiveTransitiveReduction(D));
 end);
 
-InstallMethod(DotPartialOrderDigraph, "for a partial order digraph",
-[IsDigraph],
-{D} -> AsString(GraphvizDotPartialOrderDigraph(D)));
-
-InstallMethod(GraphvizDotPreorderDigraph, "for a preorder digraph",
+InstallMethod(GraphvizPreorderDigraph, "for a preorder digraph",
 [IsDigraph],
 function(D)
-  local comps, quo, red, c, x, e, node, graph, label, head, tail, nodes;
+  local comps, gv, label, node, nodes, c, x, e;
+
   if not IsPreorderDigraph(D) then
-    ErrorNoReturn("the argument <D> must be a preorder digraph,");
+    ErrorNoReturn("the argument (a digraph) must be a preorder");
   fi;
 
   # Quotient by the strongly connected components to get a partial order
   # D and draw this without loops or edges implied by transitivity.
-  D      := DigraphMutableCopyIfMutable(D);
-  comps  := DigraphStronglyConnectedComponents(D).comps;
-  quo    := DigraphRemoveAllMultipleEdges(QuotientDigraph(D, comps));
-  red    := DigraphReflexiveTransitiveReduction(quo);
+  comps := DigraphStronglyConnectedComponents(D).comps;
+  D     := DigraphMutableCopy(D);
+  DigraphRemoveAllMultipleEdges(QuotientDigraph(D, comps));
+  DigraphReflexiveTransitiveReduction(D);
 
-  graph := GraphvizDigraph("graphname");
-  GraphvizSetAttr(graph, "node [shape=\"Mrecord\"]");
-  GraphvizSetAttr(graph, "height=\"0.5\"");
-  GraphvizSetAttr(graph, "fixedsize=\"true\"");
-  GraphvizSetAttr(graph, "ranksep=\"1\"");
+  gv := GraphvizDigraph("graphname");
+  GraphvizSetAttr(gv, "node [shape=\"Mrecord\"]");
+  GraphvizSetAttr(gv, "height=\"0.5\"");
+  GraphvizSetAttr(gv, "fixedsize=\"true\"");
+  GraphvizSetAttr(gv, "ranksep=\"1\"");
 
-  # Each vertex of the quotient D is labelled by its preimage.
   for c in [1 .. Length(comps)] do
 
-    # create node w/ label
     label := "\"";
     Append(label, String(comps[c][1]));
     for x in comps[c]{[2 .. Length(comps[c])]} do
@@ -354,89 +228,89 @@ function(D)
     od;
     Append(label, "\"");
 
-    node := GraphvizAddNode(graph, String(c));
+    node := GraphvizAddNode(gv, c);
     GraphvizSetAttr(node, "label", label);
-    GraphvizSetAttr(node, "width", String(Float(Length(comps[c]) / 2)));
+    GraphvizSetAttr(node, "width", Float(Length(comps[c]) / 2));
   od;
 
-  # Add the edges of the quotient D.
-  nodes := GraphvizNodes(graph);
-  for e in DigraphEdges(red) do
-    tail := nodes[String(e[1])];
-    head := nodes[String(e[2])];
-    GraphvizAddEdge(graph, tail, head);
+  nodes := GraphvizNodes(gv);
+  for e in DigraphEdges(D) do
+    GraphvizAddEdge(gv, nodes[e[1]], nodes[e[2]]);
   od;
 
-  return graph;
+  return gv;
 end);
 
-InstallMethod(DotPreorderDigraph, "for a preorder digraph",
-[IsDigraph],
-{D} -> AsString(GraphvizDotPreorderDigraph(D)));
+#############################################################################
+# Highlighted subdigraphs
+#############################################################################
 
-InstallMethod(GraphvizDotHighlightedDigraph, "for a digraph and list",
-[IsDigraph, IsList],
-{D, list} -> GraphvizDotHighlightedDigraph(D, list, "black", "grey"));
+BindGlobal("DIGRAPHS_GraphvizHighlight",
+function(D, gv, hi_verts, hi, lo)
+  local node, color, out, nodes, edge, v, i, j;
 
-InstallMethod(DotHighlightedDigraph, "for a digraph and list",
-[IsDigraph, IsList],
-{D, list} -> AsString(GraphvizDotHighlightedDigraph(D, list, "black", "grey")));
-
-InstallMethod(GraphvizDotHighlightedDigraph,
-"for a digraph by out-neighbours, list, and two strings",
-[IsDigraphByOutNeighboursRep, IsList, IsString, IsString],
-function(D, highverts, highcolour, lowcolour)
-  local lowverts, graph, node, edge, nodes, out, i, j;
-
-  if not IsSubset(DigraphVertices(D), highverts) then
-    ErrorNoReturn("the 2nd argument <highverts> must be a list of vertices ",
-                  "of the 1st argument <D>,");
-  elif IsEmpty(highcolour) then
-    ErrorNoReturn("the 3rd argument <highcolour> must be a string ",
-                  "containing the name of a colour,");
-  elif IsEmpty(lowcolour) then
-    ErrorNoReturn("the 4th argument <lowcolour> must be a string ",
-                  "containing the name of a colour,");
+  if IsMultiDigraph(D) then
+    ErrorNoReturn("the 1st argument (a digraph) must not have multiple edges");
+  elif not IsSubset(DigraphVertices(D), hi_verts) then
+    ErrorNoReturn("the 2nd argument (list) must consist of vertices ",
+                  "of the 1st argument (a digraph)");
   fi;
+  GV_ErrorIfNotValidColor(hi);
+  GV_ErrorIfNotValidColor(lo);
 
-  lowverts  := Difference(DigraphVertices(D), highverts);
-  out       := OutNeighbours(D);
+  GraphvizSetAttr(gv, "shape", "circle");
 
-  graph := GraphvizDigraph("hgn");
-
-  for i in lowverts do
-    node := GraphvizAddNode(graph, String(i));
-    GraphvizSetAttrs(node, rec(shape := "circle", color := lowcolour));
+  for v in DigraphVertices(D) do
+    node := GraphvizAddNode(gv, v);
+    if v in hi_verts then
+      color := hi;
+    else
+      color := lo;
+    fi;
+    GraphvizSetAttr(node, "color", color);
   od;
 
-  for i in highverts do
-    node := GraphvizAddNode(graph, String(i));
-    GraphvizSetAttrs(node, rec(shape := "circle", color := highcolour));
-  od;
+  out   := OutNeighbours(D);
+  nodes := GraphvizNodes(gv);
 
-  nodes := GraphvizNodes(graph);
-  for i in lowverts do
+  for i in DigraphVertices(D) do
     for j in out[i] do
-      edge := GraphvizAddEdge(graph, nodes[String(i)], nodes[String(j)]);
-      GraphvizSetAttr(edge, "color", lowcolour);
-    od;
-  od;
-
-  for i in highverts do
-    for j in out[i] do
-      edge := GraphvizAddEdge(graph, nodes[String(i)], nodes[String(j)]);
-      GraphvizSetAttr(edge, "color", highcolour);
-      if j in lowverts then
-        GraphvizSetAttr(edge, "color", lowcolour);
+      if IsGVDigraph(gv) or i > j then
+        edge := GraphvizAddEdge(gv, nodes[i], nodes[j]);
+        if i in hi_verts and j in hi_verts then
+          color := hi;
+        else
+          color := lo;
+        fi;
+        GraphvizSetAttr(edge, "color", color);
       fi;
     od;
   od;
 
-  return graph;
+  return gv;
 end);
 
-InstallMethod(DotHighlightedDigraph,
+InstallMethod(GraphvizHighlightedDigraph,
 "for a digraph by out-neighbours, list, and two strings",
 [IsDigraphByOutNeighboursRep, IsList, IsString, IsString],
-{D, highverts, highcolour, lowcolour} ->
-  AsString(GraphvizDotHighlightedDigraph(D, highverts, highcolour, lowcolour)));
+{D, hi_verts, hi, lo} ->
+DIGRAPHS_GraphvizHighlight(D, GraphvizDigraph(), hi_verts, hi, lo));
+
+InstallMethod(GraphvizHighlightedDigraph, "for a digraph and list",
+[IsDigraph, IsList],
+{D, list} -> GraphvizHighlightedDigraph(D, list, "black", "grey"));
+
+InstallMethod(GraphvizHighlightedGraph,
+"for a digraph by out-neighbours, list, and two strings",
+[IsDigraphByOutNeighboursRep, IsList, IsString, IsString],
+function(D, hi_verts, hi, lo)
+  if not IsSymmetricDigraph(D) then
+    ErrorNoReturn("the argument (a digraph) must be symmetric");
+  fi;
+  return DIGRAPHS_GraphvizHighlight(D, GraphvizGraph(), hi_verts, hi, lo);
+end);
+
+InstallMethod(GraphvizHighlightedGraph, "for a digraph and list",
+[IsDigraph, IsList],
+# IsSymmetricDigraph checked in GraphvizHighlightedGraph
+{D, list} -> GraphvizHighlightedGraph(D, list, "black", "grey"));

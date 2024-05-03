@@ -16,6 +16,7 @@
 ##  <!ENTITY ORBVERS                  "4.8.2">
 ##  <!ENTITY DATASTRUCTURESVERS       "0.2.5">
 ##  <!ENTITY NAUTYTRACESINTERFACEVERS "0.2">
+##  <!ENTITY GRAPHVIZVERS             "0.0.0">
 ##  <!ENTITY ARCHIVENAME    "digraphs-1.7.1">
 ##  <!ENTITY COPYRIGHTYEARS "2014-24">
 ##  <#/GAPDoc>
@@ -390,7 +391,7 @@ Dependencies := rec(
   GAP := ">=4.10.0",
   NeededOtherPackages := [["io", ">=4.5.1"],
                           ["orb", ">=4.8.2"],
-                          ["graphviz", "*"],
+                          ["graphviz", ">=0.0.0"],
                           ["datastructures", ">=0.2.5"]],
   SuggestedOtherPackages := [["GAPDoc", ">=1.6.3"],
                              ["grape", ">=4.8.1"],
