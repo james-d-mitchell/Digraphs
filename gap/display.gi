@@ -104,7 +104,7 @@ function(D, colors)
                      Length(out[i]),
                      Length(colors[i]));
     fi;
-    Perform(colors[i], GV_ErrorIfNotValidColor);
+    Perform(colors[i], ErrorIfNotValidColor);
   od;
 end);
 
@@ -118,7 +118,7 @@ function(D, gv, colors)
   out := OutNeighbours(D);
   for n in DigraphVertices(D) do
     for i in [1 .. Length(out[n])] do
-      if IsGVDigraph(gv) or n > out[n][i] then
+      if IsGraphvizDigraph(gv) or n > out[n][i] then
         e := GraphvizAddEdge(gv, n, out[n][i]);
         GraphvizSetAttr(e, "color", colors[n][i]);
       fi;
@@ -255,8 +255,8 @@ function(D, gv, hi_verts, hi, lo)
     ErrorNoReturn("the 2nd argument (list) must consist of vertices ",
                   "of the 1st argument (a digraph)");
   fi;
-  GV_ErrorIfNotValidColor(hi);
-  GV_ErrorIfNotValidColor(lo);
+  ErrorIfNotValidColor(hi);
+  ErrorIfNotValidColor(lo);
 
   GraphvizSetAttr(gv, "shape", "circle");
 
@@ -275,7 +275,7 @@ function(D, gv, hi_verts, hi, lo)
 
   for i in DigraphVertices(D) do
     for j in out[i] do
-      if IsGVDigraph(gv) or i > j then
+      if IsGraphvizDigraph(gv) or i > j then
         edge := GraphvizAddEdge(gv, nodes[i], nodes[j]);
         if i in hi_verts and j in hi_verts then
           color := hi;

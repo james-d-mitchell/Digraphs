@@ -10,7 +10,7 @@
 
 ##  <#GAPDoc Label="PKGVERSIONDATA">
 ##  <!ENTITY VERSION                  "1.7.1">
-##  <!ENTITY GAPVERS                  "4.10.0">
+##  <!ENTITY GAPVERS                  "4.11.0">
 ##  <!ENTITY GRAPEVERS                "4.8.1">
 ##  <!ENTITY IOVERS                   "4.5.1">
 ##  <!ENTITY ORBVERS                  "4.8.2">
@@ -388,7 +388,7 @@ PackageDoc := rec(
 ),
 
 Dependencies := rec(
-  GAP := ">=4.10.0",
+  GAP := ">=4.11.0",
   NeededOtherPackages := [["io", ">=4.5.1"],
                           ["orb", ">=4.8.2"],
                           ["graphviz", ">=0.0.0"],
