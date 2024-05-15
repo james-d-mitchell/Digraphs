@@ -10,7 +10,7 @@
 
 BindGlobal("_PrintDeprecated", function(old, arg...)
   Info(InfoWarning, 1, "`", old, "` is deprecated and will be removed in v3",
-       " use `", Concatenation(List(arg, String)), "` instead!");
+       " use `", Concatenation(List(arg, AsString)), "` instead!");
 end);
 
 InstallMethod(DotDigraph, "for a digraph", [IsDigraph],
