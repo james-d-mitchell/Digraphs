@@ -684,6 +684,7 @@ static void find_graph_homos(uint16_t        depth,
     }
   }
   DIGRAPHS_ASSERT(get_bit_array(MAP_UNDEFINED[depth], next));
+  DIGRAPHS_ASSERT(next < GRAPH1->nr_vertices);
 
   if (rank < hint) {
     copy_bit_array(

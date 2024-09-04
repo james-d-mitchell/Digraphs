@@ -396,12 +396,23 @@ end);
 InstallMethod(MonomorphismsDigraphs, "for a digraph and a digraph",
 [IsDigraph, IsDigraph],
 function(D1, D2)
-  local hom, aut;
+  local hom;
   hom := MonomorphismsDigraphsRepresentatives(D1, D2);
-  D2 := DigraphMutableCopyIfMutable(D2);
-  aut := List(AutomorphismGroup(DigraphRemoveAllMultipleEdges(D2)),
-              AsTransformation);
-  return Union(List(aut, x -> hom * x));
+  if IsMultiDigraph(D2) then
+    D2 := DigraphMutableCopyIfMutable(D2);
+    D2 := DigraphRemoveAllMultipleEdges(D2);
+  fi;
+
+  # The following lines can't just be
+       return Union(List(AutomorphismGroup(D2), x -> hom * x));
+  # because of the requirement that homomorphisms fix all points greater than
+  # or equal to DigraphNrVertices(D1), and an automorphism might not fix these
+  # points.
+
+  #result := []; # TODO EmptyPlist
+  #for map in hom do
+# od;
+
 end);
 
 InstallMethod(SubdigraphsMonomorphismsRepresentatives,
@@ -650,7 +661,7 @@ function(src, ran, x)
   if IsMultiDigraph(src) or IsMultiDigraph(ran) then
     ErrorNoReturn("the 1st and 2nd arguments <src> and <ran> must be digraphs",
                   " with no multiple edges,");
-  elif LargestMovedPoint(x) > DigraphNrVertices(src) then
+  elif not IsSubset(DigraphVertices(ran), OnSets(DigraphVertices(src), x)) then
     return false;
   fi;
   for i in DigraphVertices(src) do
