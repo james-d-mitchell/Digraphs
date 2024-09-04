@@ -21,20 +21,6 @@ function(args...)
           Length(args));
   fi;
 
-  # TODO remove if/when https://github.com/gap-system/gap/pull/5791 is merged
-  # and Digraphs requires a version of GAP including that fix.
-  MyPermuted := function(list, perm)
-    local result, i;
-
-    result := [];
-    for i in [1 .. Length(list)] do
-      if IsBound(list[i]) then
-        result[i ^ perm] := list[i];
-      fi;
-    od;
-    return result;
-  end;
-
   D1 := args[1];
   hook := args[3];
   user_param := args[4];
@@ -42,7 +28,7 @@ function(args...)
   colours1 := args[10];
   order := fail;
 
-  if 12 <= Length(args) and IsList(args[12]) then
+  if (Length(args) = 12 and IsList(args[12])) or Length(args) = 13 then
     order := args[12];
     Remove(args, 12);
   fi;
@@ -79,6 +65,20 @@ function(args...)
   if order = fail or order = DigraphVertices(D1) then
     return CallFuncList(KernelHomomorphismDigraphsFinder, args);
   fi;
+
+  # TODO remove if/when https://github.com/gap-system/gap/pull/5791 is merged
+  # and Digraphs requires a version of GAP including that fix.
+  MyPermuted := function(list, perm)
+    local result, i;
+
+    result := [];
+    for i in [1 .. Length(list)] do
+      if IsBound(list[i]) then
+        result[i ^ perm] := list[i];
+      fi;
+    od;
+    return result;
+  end;
 
   p := PermList(order) ^ -1;
   Assert(1, p <> ());
