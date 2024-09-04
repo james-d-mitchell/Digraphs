@@ -1162,6 +1162,7 @@ gap> ForAll(GeneratorsOfEndomorphismMonoid(gr),
 >           x -> IsDigraphEndomorphism(gr, x));
 true
 gap> x := Transformation([2, 1, 3, 3]);;
+gap> ForAll(DigraphEdges(gr), e -> IsDigraphEdge(gr, e[1] ^ x, e[2] ^ x));
 gap> IsDigraphEndomorphism(gr, x);
 false
 gap> x := Transformation([3, 1, 3, 3]);;
@@ -1171,8 +1172,10 @@ gap> IsDigraphEndomorphism(gr, ());
 true
 gap> IsDigraphEndomorphism(gr, (1, 2));
 true
-gap> IsDigraphEndomorphism(gr, (1, 2)(3, 4));
+gap> x := (1, 2)(3, 4);
+gap> IsDigraphEndomorphism(gr, x);
 false
+gap> ForAll(DigraphEdges(gr), e -> IsDigraphEdge(gr, e[1] ^ x, e[2] ^ x));
 gap> IsDigraphEndomorphism(gr, (1, 2, 3, 4));
 false
 gap> IsDigraphHomomorphism(NullDigraph(1),
