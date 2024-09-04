@@ -10,6 +10,66 @@
 #############################################################################
 ##
 
+InstallGlobalFunction(HomomorphismDigraphsFinder,
+function(args...)
+  local D1, D2, hook, user_param, limit, hint, injective, image, partial_map, colours1, colours2, order, aut_grp, p, C1, partial_map_alt, colours1_alt, hook_alt;
+
+  if Length(args) < 11 or Length(args) > 13 then
+    Error("there must be 11, 12, or 13 arguments, found ",
+          Length(args));
+  fi;
+
+  D1 := args[1];
+  D2 := args[2];
+  hook := args[3];
+  user_param := args[4];
+  limit := args[5];
+  hint := args[6];
+  injective := args[7];
+  image := args[8];
+  partial_map := args[9];
+  colours1 := args[10];
+  colours2 := args[11];
+  order := fail;
+  aut_grp := fail;
+
+  if Length(args) = 12 then
+    if IsList(args[12]) then
+      order := args[12];
+    else
+      aut_grp := args[12];
+    fi;
+  elif Length(args) = 13 then
+    order   := args[12];
+    aut_grp := args[13];
+  fi;
+
+  # TODO some more checks on order here
+  if order = fail or order = DigraphVertices(D1) then
+    return CallFuncList(KernelHomomorphismDigraphsFinder, args);
+  fi;
+
+  p := PermList(order);
+  Assert(1, p <> ());
+  args[1] := OnDigraphs(D1, p);
+  # image = args[8] is not modified because the values in it refer to G
+  args[9] := Permuted(partial_map, p);
+  if colours1 <> fail then
+    args[10] := Permuted(colours1, p);
+  fi;
+
+  if hook <> fail then
+    args[3] := {user_param, t} -> hook(user_param, p * t);
+  fi;
+
+  CallFuncList(KernelHomomorphismDigraphsFinder, args);
+
+  if hook <> fail then
+    return user_param;
+  fi;
+  return p * user_param;
+end);
+
 InstallGlobalFunction(GeneratorsOfEndomorphismMonoid,
 function(arg...)
   local D, limit, colours, G, gens, limit_arg, out;
@@ -576,8 +636,8 @@ function(src, ran, x)
   if IsMultiDigraph(src) or IsMultiDigraph(ran) then
     ErrorNoReturn("the 1st and 2nd arguments <src> and <ran> must be digraphs",
                   " with no multiple edges,");
-  elif LargestMovedPoint(x) > DigraphNrVertices(src) then
-    return false;
+  # elif LargestMovedPoint(x) > DigraphNrVertices(src) then
+  #   return false;
   fi;
   for i in DigraphVertices(src) do
     for j in OutNeighbours(src)[i] do

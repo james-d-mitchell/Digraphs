@@ -2144,7 +2144,7 @@ static StructGVarFunc GVarFuncs[] = {
     GVAR_FUNC(MULTIDIGRAPH_AUTOMORPHISMS, 2, "digraph, colours"),
     GVAR_FUNC(DIGRAPH_CANONICAL_LABELLING, 2, "digraph, colours"),
     GVAR_FUNC(MULTIDIGRAPH_CANONICAL_LABELLING, 2, "digraph, colours"),
-    GVAR_FUNC(HomomorphismDigraphsFinder,
+    GVAR_FUNC(KernelHomomorphismDigraphsFinder,
               -1,
               "digraph1, digraph2, hook, user_param, max_results, hint, "
               "injective, image, partial_map, colors1, colors2"),

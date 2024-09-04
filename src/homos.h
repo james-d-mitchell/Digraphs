@@ -19,6 +19,6 @@
 #include "gap-includes.h"
 
 Obj FuncDIGRAPHS_FREE_HOMOS_DATA(Obj self);
-Obj FuncHomomorphismDigraphsFinder(Obj self, Obj args);
+Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args);
 
 #endif  // DIGRAPHS_SRC_HOMOS_H_

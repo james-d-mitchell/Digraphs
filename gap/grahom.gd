@@ -8,6 +8,8 @@
 #############################################################################
 ##
 
+DeclareGlobalFunction("HomomorphismDigraphsFinder");
+
 DeclareGlobalFunction("GeneratorsOfEndomorphismMonoid");
 DeclareAttribute("GeneratorsOfEndomorphismMonoidAttr", IsDigraph);
 
@@ -118,4 +120,3 @@ DeclareOperation("IsLatticeEmbedding",
 DeclareOperation("IsLatticeEmbedding",
                  [IsDigraph, IsDigraph, IsPerm]);
 DeclareSynonym("IsLatticeMonomorphism", IsLatticeEmbedding);
-

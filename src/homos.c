@@ -25,15 +25,13 @@
 // 1. Try other bit hacks for iterating through set bits
 
 #include "homos.h"
+
 // C headers
 #include <setjmp.h>   // for longjmp, setjmp, jmp_buf
 #include <stdbool.h>  // for true, false, bool
 #include <stddef.h>   // for NULL
 #include <stdint.h>   // for uint16_t, uint64_t
 #include <stdlib.h>   // for malloc, NULL
-#ifdef DIGRAPHS_ENABLE_STATS
-#include <time.h>  // for time
-#endif
 
 // GAP headers
 #include "gap-includes.h"
@@ -49,6 +47,12 @@
 #include "perms.h"            // for UNDEFINED, PermColl, Perm
 #include "safemalloc.h"       // for safe_mallov
 #include "schreier-sims.h"    // for PermColl, . . .
+
+#ifdef DIGRAPHS_ENABLE_STATS
+// This include has to come after digraphs-config.h since that's where
+// DIGRAPHS_ENABLE_STATS is defined
+#include <time.h>  // for time
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // 1. Macros
@@ -1929,10 +1933,12 @@ static bool init_data_from_args(Obj digraph1_obj,
 //                      recursive search. If not given, the full automorphism
 //                      group will be used.
 
-Obj FuncHomomorphismDigraphsFinder(Obj self, Obj args) {
-  if (LEN_PLIST(args) != 11 && LEN_PLIST(args) != 12 && LEN_PLIST(args) != 13) {
-    ErrorQuit(
-        "there must be 11 or 12 arguments, found %d,", LEN_PLIST(args), 0L);
+Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
+  DIGRAPHS_ASSERT(IS_PLIST(args));
+  if (LEN_PLIST(args) < 11 || LEN_PLIST(args) > 13) {
+    ErrorQuit("there must be 11, 12, or 13 arguments, found %d,",
+              LEN_PLIST(args),
+              0L);
   }
   Obj digraph1_obj    = ELM_PLIST(args, 1);
   Obj digraph2_obj    = ELM_PLIST(args, 2);

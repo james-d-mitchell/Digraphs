@@ -1067,8 +1067,8 @@ gap> gr2 := CompleteDigraph(3);;
 gap> EpimorphismsDigraphs(gr1, gr2);
 [  ]
 gap> gr1 := DigraphFromDigraph6String("&I@??HO???????A????");;
-gap> DigraphEpimorphism(gr1, gr2);
-Transformation( [ 2, 1, 1, 2, 1, 3, 1, 2, 1, 1 ] )
+gap> IsDigraphEpimorphism(gr1, gr2, DigraphEpimorphism(gr1, gr2));
+true
 gap> epis := EpimorphismsDigraphsRepresentatives(gr1, gr2);;
 gap> Length(epis);
 972
