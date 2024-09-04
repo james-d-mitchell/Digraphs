@@ -14,7 +14,7 @@
 
 InstallGlobalFunction(HomomorphismDigraphsFinder,
 function(args...)
-  local MyPermuted, D1, hook, user_param, image, partial_map, colours1, order, p, i;
+  local MyPermuted, D1, hook, user_param, partial_map, colours1, order, p, i;
 
   if Length(args) < 11 or Length(args) > 13 then
     Error("there must be 11, 12, or 13 arguments, found ",
@@ -38,19 +38,18 @@ function(args...)
   D1 := args[1];
   hook := args[3];
   user_param := args[4];
-  image := args[8];
   partial_map := args[9];
   colours1 := args[10];
   order := fail;
 
-  if (Length(args) = 12 and IsList(args[12])) or Length(args) = 13 then
+  if 12 <= Length(args) and IsList(args[12]) then
     order := args[12];
+    Remove(args, 12);
   fi;
 
   if order <> fail and not IsList(order) then
     Error("the 12th argument <order> must be a list or fail, not ",
           TNAM_OBJ(order));
-
   elif IsList(order) then
     if Length(order) <> DigraphNrVertices(D1) then
       Error("the 12th argument <order> must be a list of length ",
@@ -78,9 +77,6 @@ function(args...)
   fi;
 
   if order = fail or order = DigraphVertices(D1) then
-    if Length(args) >= 12 and order = args[12] then
-      Unbind(args[12]);
-    fi;
     return CallFuncList(KernelHomomorphismDigraphsFinder, args);
   fi;
 

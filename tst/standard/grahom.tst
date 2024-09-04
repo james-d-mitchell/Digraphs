@@ -2175,11 +2175,11 @@ Error, the 11th argument <colors2> must be a list or fail, not boolean or fail\
 ,
 gap> HomomorphismDigraphsFinder(NullDigraph(1), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, true);
-Error, the 12th or 13th argument <aut_grp> must be a permutation group or fail\
-, not boolean or fail,
+Error, the 12th argument <aut_grp> must be a permutation group or fail, not bo\
+olean or fail,
 gap> HomomorphismDigraphsFinder(NullDigraph(10), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, [1]);
-Error, the 12th argument <order> must be a list of length 10 not 1
+Error, the 12th argument <order> must be a list of length 10, not 1
 gap> HomomorphismDigraphsFinder(NullDigraph(1), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, "1");
 Error, the 12th argument <order> must consist of integers, but found character\
@@ -2198,12 +2198,12 @@ Error, the 12th argument <order> must be duplicate-free, but the value
 1 in position 2 is a duplicate
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, 12);
-Error, the 12th or 13th argument <aut_grp> must be a permutation group or fail\
-, not integer,
+Error, the 12th argument <aut_grp> must be a permutation group or fail, not in\
+teger,
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, true);
-Error, the 12th or 13th argument <aut_grp> must be a permutation group or fail\
-, not boolean or fail,
+Error, the 12th argument <aut_grp> must be a permutation group or fail, not bo\
+olean or fail,
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail,
 > Group(MappingPermListList([1 .. 1000], [5 .. 1004])));
@@ -2225,7 +2225,7 @@ on 1 of the group generators,
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(3), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail,
 > Group((1, 2, 3), (1, 2), (1, 3)));
-Error, expected at most 2 generators in the 12th or 13th argument but got 3,
+Error, expected at most 2 generators in the 12th argument but got 3,
 
 #
 gap> D1 := DigraphSymmetricClosure(Digraph([[2], [3], []]));;

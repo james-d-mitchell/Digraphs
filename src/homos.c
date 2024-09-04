@@ -1642,7 +1642,6 @@ static bool init_data_from_args(Obj digraph1_obj,
                                 Obj partial_map_obj,
                                 Obj colors1_obj,
                                 Obj colors2_obj,
-                                Obj order_obj,
                                 Obj aut_grp_obj) {
   uint16_t calculated_max_verts =
       MAX(DigraphNrVertices(digraph1_obj), DigraphNrVertices(digraph2_obj));
@@ -1715,15 +1714,7 @@ static bool init_data_from_args(Obj digraph1_obj,
   init_bit_array(MAP_UNDEFINED[0], true, nr1);
   init_bit_array(VALS, false, nr2);
 
-  if (IS_LIST(order_obj)) {
-    ORDERED = true;
-    for (uint16_t i = 0; i < nr1; i++) {
-      ORDER[i]                = INT_INTOBJ(ELM_LIST(order_obj, i + 1)) - 1;
-      INVERSE_ORDER[ORDER[i]] = i;
-    }
-  } else {
     ORDERED = false;
-  }
 
   bool is_undirected;
   if (CALL_1ARGS(IsSymmetricDigraph, digraph1_obj) == True
@@ -1939,8 +1930,9 @@ static bool init_data_from_args(Obj digraph1_obj,
 Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
   DIGRAPHS_ASSERT(IS_PLIST(args));
   // TODO to assert
-  if (LEN_PLIST(args) != 12) {
-    ErrorQuit("there must be 12 arguments, found %d,", LEN_PLIST(args), 0L);
+  if (LEN_PLIST(args) != 11 && LEN_PLIST(args) != 12) {
+    ErrorQuit(
+        "there must be 11 or 12 arguments, found %d,", LEN_PLIST(args), 0L);
   }
 
   Obj digraph1_obj    = ELM_PLIST(args, 1);
@@ -1954,7 +1946,11 @@ Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
   Obj partial_map_obj = ELM_PLIST(args, 9);
   Obj colors1_obj     = ELM_PLIST(args, 10);
   Obj colors2_obj     = ELM_PLIST(args, 11);
-  Obj aut_grp_obj     = ELM_PLIST(args, 12);
+
+  Obj aut_grp_obj = Fail;
+  if (LEN_PLIST(args) == 12) {
+    aut_grp_obj = ELM_PLIST(args, 12);
+  }
 
   // Validate the arguments
   if (CALL_1ARGS(IsDigraph, digraph1_obj) != True) {
@@ -2099,49 +2095,9 @@ Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
               0L,
               0L);
   }
-  if (!IS_LIST(order_obj) && order_obj != Fail) {
-    ErrorQuit("the 12th argument <order> must be a list or fail, not %s,",
-              (Int) TNAM_OBJ(order_obj),
-              0L);
-  } else if (IS_LIST(order_obj)) {
-    if (LEN_LIST(order_obj) != DigraphNrVertices(digraph1_obj)) {
-      ErrorQuit(
-          "the 12th argument <order> must be a list of length %d, not %d,",
-          DigraphNrVertices(digraph1_obj),
-          LEN_LIST(order_obj));
-    }
-    for (Int i = 1; i <= LEN_LIST(order_obj); ++i) {
-      if (!ISB_LIST(order_obj, i)) {
-        ErrorQuit("the 12th argument <order> must be a dense list, but "
-                  "position %d is not bound,",
-                  i,
-                  0L);
-      } else if (!IS_INTOBJ(ELM_LIST(order_obj, i))) {
-        ErrorQuit("the 12th argument <order> must consist of integers, but "
-                  "found %s in position %d,",
-                  (Int) TNAM_OBJ(order_obj),
-                  i);
-      } else if (INT_INTOBJ(ELM_LIST(order_obj, i)) <= 0
-                 || INT_INTOBJ(ELM_LIST(order_obj, i))
-                        > DigraphNrVertices(digraph1_obj)) {
-        ErrorQuit("the 12th argument <order> must consist of integers, in the "
-                  "range [1, %d] but found %d,",
-                  DigraphNrVertices(digraph1_obj),
-                  INT_INTOBJ(ELM_LIST(order_obj, i)));
-      } else if (INT_INTOBJ(
-                     POS_LIST(order_obj, ELM_LIST(order_obj, i), INTOBJ_INT(0)))
-                 < i) {
-        ErrorQuit("the 12th argument <order> must be duplicate-free, but "
-                  "the value %d in position %d is a duplicate,",
-                  INT_INTOBJ(ELM_LIST(order_obj, i)),
-                  i);
-      }
-    }
-  }
   if (aut_grp_obj != Fail) {
     if (CALL_1ARGS(IsPermGroup, aut_grp_obj) != True) {
-      ErrorQuit(
-          "the 12th or 13th argument <aut_grp> must be a permutation group "
+      ErrorQuit("the 12th argument <aut_grp> must be a permutation group "
           "or fail, not %s,",
           (Int) TNAM_OBJ(aut_grp_obj),
           0L);
@@ -2151,7 +2107,7 @@ Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
     DIGRAPHS_ASSERT(LEN_LIST(gens) > 0);
     Int lmp = INT_INTOBJ(CALL_1ARGS(LargestMovedPointPerms, gens));
     if (lmp > 0 && LEN_LIST(gens) >= lmp) {
-      ErrorQuit("expected at most %d generators in the 12th or 13th argument "
+      ErrorQuit("expected at most %d generators in the 12th argument "
                 "but got %d,",
                 lmp - 1,
                 LEN_LIST(gens));
@@ -2211,7 +2167,6 @@ Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
                            partial_map_obj,
                            colors1_obj,
                            colors2_obj,
-                           order_obj,
                            aut_grp_obj)) {
 #ifdef DIGRAPHS_ENABLE_STATS
     print_stats(STATS);
