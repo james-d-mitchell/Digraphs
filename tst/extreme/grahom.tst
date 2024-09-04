@@ -25,9 +25,8 @@ gap> gr := DigraphFromDigraph6String(Concatenation(
 gap> gens := GeneratorsOfEndomorphismMonoid(gr);;
 gap> Length(gens);
 329
-
-# gap> Size(Semigroup(gens));
-# 105120
+gap> Size(Semigroup(gens));
+105120
 gap> HomomorphismDigraphsFinder(gr, gr, fail, [], infinity, fail, 0,
 > [1, 14, 28, 39, 42], [], fail, fail);;
 gap> str := HomomorphismDigraphsFinder(gr, gr, fail, [], infinity, fail, 0,

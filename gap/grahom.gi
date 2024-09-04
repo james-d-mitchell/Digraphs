@@ -10,9 +10,11 @@
 #############################################################################
 ##
 
+# TODO insist that user_param is empty if hook = fail
+
 InstallGlobalFunction(HomomorphismDigraphsFinder,
 function(args...)
-  local NonDensePermuted, D1, D2, hook, user_param, limit, hint, injective, image, partial_map, colours1, colours2, order, aut_grp, p;
+  local MyPermuted, D1, hook, user_param, image, partial_map, colours1, order, p, i;
 
   if Length(args) < 11 or Length(args) > 13 then
     Error("there must be 11, 12, or 13 arguments, found ",
@@ -21,7 +23,7 @@ function(args...)
 
   # TODO remove if/when https://github.com/gap-system/gap/pull/5791 is merged
   # and Digraphs requires a version of GAP including that fix.
-  NonDensePermuted := function(list, perm)
+  MyPermuted := function(list, perm)
     local result, i;
 
     result := [];
@@ -34,46 +36,67 @@ function(args...)
   end;
 
   D1 := args[1];
-  D2 := args[2];
   hook := args[3];
   user_param := args[4];
-  limit := args[5];
-  hint := args[6];
-  injective := args[7];
   image := args[8];
   partial_map := args[9];
   colours1 := args[10];
-  colours2 := args[11];
   order := fail;
-  aut_grp := fail;
 
-  if Length(args) = 12 then
-    if IsList(args[12]) then
-      order := args[12];
-    else
-      aut_grp := args[12];
-    fi;
-  elif Length(args) = 13 then
-    order   := args[12];
-    aut_grp := args[13];
+  if (Length(args) = 12 and IsList(args[12])) or Length(args) = 13 then
+    order := args[12];
   fi;
 
-  # TODO some more checks on order here
+  if order <> fail and not IsList(order) then
+    Error("the 12th argument <order> must be a list or fail, not ",
+          TNAM_OBJ(order));
+
+  elif IsList(order) then
+    if Length(order) <> DigraphNrVertices(D1) then
+      Error("the 12th argument <order> must be a list of length ",
+            DigraphNrVertices(D1),
+            ", not ",
+            Length(order));
+    fi;
+    for i in [1 .. Length(order)] do
+      if not IsBound(order[i]) then
+        Error("the 12th argument <order> must be a dense list, but ",
+             "position ", i, " is not bound,");
+      elif not IsInt(order[i]) then
+        Error("the 12th argument <order> must consist of integers, but ",
+                  "found ", TNAM_OBJ(order[i]), " in position ", i);
+      elif order[i] <= 0 or order[i] > DigraphNrVertices(D1) then
+        Error("the 12th argument <order> must consist of integers, in the ",
+        "range [1, ", DigraphNrVertices(D1), "] but found ", order[i]);
+      elif Position(order, order[i]) < i then
+        Error("the 12th argument <order> must be duplicate-free, but ",
+                  "the value ", order[i], " in position ",
+                  i,
+                  " is a duplicate");
+      fi;
+    od;
+  fi;
+
   if order = fail or order = DigraphVertices(D1) then
+    if Length(args) >= 12 and order = args[12] then
+      Unbind(args[12]);
+    fi;
     return CallFuncList(KernelHomomorphismDigraphsFinder, args);
   fi;
 
-  p := PermList(order);
+  p := PermList(order) ^ -1;
   Assert(1, p <> ());
   args[1] := OnDigraphs(D1, p);
   # image = args[8] is not modified because the values in it refer to G
-  args[9] := NonDensePermuted(partial_map, p);
+  args[9] := MyPermuted(partial_map, p);
   if colours1 <> fail then
-    args[10] := NonDensePermuted(colours1, p);
+    args[10] := MyPermuted(colours1, p);
   fi;
 
   if hook <> fail then
     args[3] := {user_param, t} -> hook(user_param, p * t);
+  elif not IsList(user_param) or not IsEmpty(user_param) then
+    Error("TODO");
   fi;
 
   CallFuncList(KernelHomomorphismDigraphsFinder, args);
@@ -140,10 +163,11 @@ function(arg...)
     return gens;
   fi;
 
+  out := [];
   out := HomomorphismDigraphsFinder(D,                   # gr1
                                     D,                   # gr2
                                     fail,                # hook
-                                    gens,                # user_param
+                                    out,                 # user_param
                                     limit,               # limit
                                     fail,                # hint
                                     0,                   # injective
@@ -152,8 +176,9 @@ function(arg...)
                                     colours,             # colours1
                                     colours,             # colours2
                                     DigraphWelshPowellOrder(D));
+  out := Concatenation(gens, out);
 
-  if (limit = infinity or Length(gens) < limit_arg) and IsImmutableDigraph(D)
+  if (limit = infinity or Length(out) < limit_arg) and IsImmutableDigraph(D)
       and colours = fail then
     SetGeneratorsOfEndomorphismMonoidAttr(D, out);
   fi;

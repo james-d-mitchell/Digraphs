@@ -1163,8 +1163,9 @@ gap> ForAll(GeneratorsOfEndomorphismMonoid(gr),
 true
 gap> x := Transformation([2, 1, 3, 3]);;
 gap> ForAll(DigraphEdges(gr), e -> IsDigraphEdge(gr, e[1] ^ x, e[2] ^ x));
+true
 gap> IsDigraphEndomorphism(gr, x);
-false
+true
 gap> x := Transformation([3, 1, 3, 3]);;
 gap> IsDigraphEndomorphism(gr, x);
 false
@@ -1173,9 +1174,11 @@ true
 gap> IsDigraphEndomorphism(gr, (1, 2));
 true
 gap> x := (1, 2)(3, 4);
+(1,2)(3,4)
 gap> IsDigraphEndomorphism(gr, x);
-false
+true
 gap> ForAll(DigraphEdges(gr), e -> IsDigraphEdge(gr, e[1] ^ x, e[2] ^ x));
+true
 gap> IsDigraphEndomorphism(gr, (1, 2, 3, 4));
 false
 gap> IsDigraphHomomorphism(NullDigraph(1),
@@ -1845,7 +1848,9 @@ gap> HomomorphismDigraphsFinder(D,
 gap> parts := Filtered(PartitionsSet([1 .. 9], 3),
 >                      x -> ForAll(x, y -> Length(y) = 3));;
 gap> D := Digraph(parts, {x, y} -> ForAll(x, z -> not z in y));
+<immutable digraph with 280 vertices, 70560 edges>
 gap> t := DigraphHomomorphism(CompleteDigraph(25), D);
+<transformation on 273 pts with rank 251>
 gap> IsDigraphHomomorphism(CompleteDigraph(25), D, t);
 true
 gap> tt := HomomorphismDigraphsFinder(CompleteDigraph(26),
@@ -2137,7 +2142,7 @@ gap> HomomorphismDigraphsFinder(CycleDigraph(5),
 
 # More arg/error checks
 gap> HomomorphismDigraphsFinder(0);
-Error, there must be 11 or 12 arguments, found 1,
+Error, there must be 11, 12, or 13 arguments, found 1
 gap> DigraphHomomorphism(NullDigraph(1), NullDigraph(513));
 IdentityTransformation
 gap> HomomorphismDigraphsFinder(NullDigraph(1), NullDigraph(510), fail, [], 1,
@@ -2174,23 +2179,23 @@ Error, the 12th or 13th argument <aut_grp> must be a permutation group or fail\
 , not boolean or fail,
 gap> HomomorphismDigraphsFinder(NullDigraph(10), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, [1]);
-Error, the 12th argument <order> must be a list of length 10, not 1,
+Error, the 12th argument <order> must be a list of length 10 not 1
 gap> HomomorphismDigraphsFinder(NullDigraph(1), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, "1");
-Error, the 12th argument <order> must consist of integers, but found list (str\
-ing) in position 1,
+Error, the 12th argument <order> must consist of integers, but found character\
+ in position 1
 gap> HomomorphismDigraphsFinder(NullDigraph(2), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, [, 1]);
-Error, the 12th argument <order> must be a dense list, but position 1 is not b\
-ound,
+Error, the 12th argument <order> must be a dense list, but position 
+1 is not bound,
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, [1, 3, 5]);
-Error, the 12th argument <order> must consist of integers, in the range [1, 3]\
- but found 5,
+Error, the 12th argument <order> must consist of integers, in the range [1, 
+3] but found 5
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, [1, 1, 3]);
-Error, the 12th argument <order> must be duplicate-free, but the value 1 in po\
-sition 2 is a duplicate,
+Error, the 12th argument <order> must be duplicate-free, but the value 
+1 in position 2 is a duplicate
 gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
 > fail, true, [1, 2, 3], [1], fail, fail, 12);
 Error, the 12th or 13th argument <aut_grp> must be a permutation group or fail\

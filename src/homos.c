@@ -1934,13 +1934,15 @@ static bool init_data_from_args(Obj digraph1_obj,
 //                      recursive search. If not given, the full automorphism
 //                      group will be used.
 
+// TODO rename with all caps and no KERNEL
+
 Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
   DIGRAPHS_ASSERT(IS_PLIST(args));
-  if (LEN_PLIST(args) < 11 || LEN_PLIST(args) > 13) {
-    ErrorQuit("there must be 11, 12, or 13 arguments, found %d,",
-              LEN_PLIST(args),
-              0L);
+  // TODO to assert
+  if (LEN_PLIST(args) != 12) {
+    ErrorQuit("there must be 12 arguments, found %d,", LEN_PLIST(args), 0L);
   }
+
   Obj digraph1_obj    = ELM_PLIST(args, 1);
   Obj digraph2_obj    = ELM_PLIST(args, 2);
   Obj hook_obj        = ELM_PLIST(args, 3);
@@ -1952,20 +1954,7 @@ Obj FuncKernelHomomorphismDigraphsFinder(Obj self, Obj args) {
   Obj partial_map_obj = ELM_PLIST(args, 9);
   Obj colors1_obj     = ELM_PLIST(args, 10);
   Obj colors2_obj     = ELM_PLIST(args, 11);
-  Obj order_obj       = Fail;
-  Obj aut_grp_obj     = Fail;
-  if (LEN_PLIST(args) == 12) {
-    if (IS_LIST(ELM_PLIST(args, 12))) {
-      order_obj = ELM_PLIST(args, 12);
-    } else {
-      aut_grp_obj = ELM_PLIST(args, 12);
-    }
-  }
-
-  if (LEN_PLIST(args) == 13) {
-    order_obj   = ELM_PLIST(args, 12);
-    aut_grp_obj = ELM_PLIST(args, 13);
-  }
+  Obj aut_grp_obj     = ELM_PLIST(args, 12);
 
   // Validate the arguments
   if (CALL_1ARGS(IsDigraph, digraph1_obj) != True) {
