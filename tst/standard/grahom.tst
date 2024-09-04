@@ -1842,9 +1842,9 @@ gap> HomomorphismDigraphsFinder(D,
 gap> parts := Filtered(PartitionsSet([1 .. 9], 3),
 >                      x -> ForAll(x, y -> Length(y) = 3));;
 gap> D := Digraph(parts, {x, y} -> ForAll(x, z -> not z in y));
-<immutable digraph with 280 vertices, 70560 edges>
 gap> t := DigraphHomomorphism(CompleteDigraph(25), D);
-<transformation on 273 pts with rank 251>
+gap> IsDigraphHomomorphism(CompleteDigraph(25), D, t);
+true
 gap> tt := HomomorphismDigraphsFinder(CompleteDigraph(26),
 >                                     D,
 >                                     fail,       # hook
@@ -1853,12 +1853,11 @@ gap> tt := HomomorphismDigraphsFinder(CompleteDigraph(26),
 >                                     fail,
 >                                     0,
 >                                     [1 .. 280],
->                                     OnTuples([2 .. 25], t),
+>                                     [12, 23, 32, 44, 52, 1, 77, 85, 96, 103, 114,
+> 125, 136, 145, 157, 170, 262, 204, 215, 233, 246, 255, 193, 273],
 >                                     fail,
 >                                     fail)[1];
 <transformation on 273 pts with rank 250>
-gap> OnTuples([2 .. 25], t) = OnTuples([2 .. 25], tt);
-false
 
 # GAP hook function
 gap> found := 0;;

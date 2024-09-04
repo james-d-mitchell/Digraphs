@@ -12,12 +12,26 @@
 
 InstallGlobalFunction(HomomorphismDigraphsFinder,
 function(args...)
-  local D1, D2, hook, user_param, limit, hint, injective, image, partial_map, colours1, colours2, order, aut_grp, p, C1, partial_map_alt, colours1_alt, hook_alt;
+  local NonDensePermuted, D1, D2, hook, user_param, limit, hint, injective, image, partial_map, colours1, colours2, order, aut_grp, p;
 
   if Length(args) < 11 or Length(args) > 13 then
     Error("there must be 11, 12, or 13 arguments, found ",
           Length(args));
   fi;
+
+  # TODO remove if/when https://github.com/gap-system/gap/pull/5791 is merged
+  # and Digraphs requires a version of GAP including that fix.
+  NonDensePermuted := function(list, perm)
+    local result, i;
+
+    result := [];
+    for i in [1 .. Length(list)] do
+      if IsBound(list[i]) then
+        result[i ^ perm] := list[i];
+      fi;
+    od;
+    return result;
+  end;
 
   D1 := args[1];
   D2 := args[2];
@@ -53,9 +67,9 @@ function(args...)
   Assert(1, p <> ());
   args[1] := OnDigraphs(D1, p);
   # image = args[8] is not modified because the values in it refer to G
-  args[9] := Permuted(partial_map, p);
+  args[9] := NonDensePermuted(partial_map, p);
   if colours1 <> fail then
-    args[10] := Permuted(colours1, p);
+    args[10] := NonDensePermuted(colours1, p);
   fi;
 
   if hook <> fail then
@@ -636,8 +650,8 @@ function(src, ran, x)
   if IsMultiDigraph(src) or IsMultiDigraph(ran) then
     ErrorNoReturn("the 1st and 2nd arguments <src> and <ran> must be digraphs",
                   " with no multiple edges,");
-  # elif LargestMovedPoint(x) > DigraphNrVertices(src) then
-  #   return false;
+  elif LargestMovedPoint(x) > DigraphNrVertices(src) then
+    return false;
   fi;
   for i in DigraphVertices(src) do
     for j in OutNeighbours(src)[i] do

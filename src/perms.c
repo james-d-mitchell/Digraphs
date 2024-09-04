@@ -26,7 +26,6 @@ Perm new_perm(uint16_t const degree) {
 
 Perm new_perm_from_gap(Obj gap_perm_obj, uint16_t const degree) {
   UInt lmp = LargestMovedPointPerm(gap_perm_obj);
-  DIGRAPHS_ASSERT(lmp <= MAXVERTS);
   if (lmp > MAXVERTS) {
     ErrorQuit("expected permutations of degree at most %d, but got a "
               "permutation of degree %d",
