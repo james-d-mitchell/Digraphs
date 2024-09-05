@@ -10,8 +10,6 @@
 #############################################################################
 ##
 
-# TODO insist that user_param is empty if hook = fail
-
 InstallGlobalFunction(HomomorphismDigraphsFinder,
 function(args...)
   local MyPermuted, D1, hook, user_param, partial_map, colours1, order, p, i;
@@ -91,8 +89,13 @@ function(args...)
 
   if hook <> fail then
     args[3] := {user_param, t} -> hook(user_param, p * t);
-  elif not IsList(user_param) or not IsEmpty(user_param) then
-    Error("TODO");
+  elif not IsList(user_param)  then
+    Error("the 4th argument <user_param> must be an empty list ",
+          "when the 3rd argument <hook> is fail, but found ",
+          TNAM_OBJ(user_param));
+  elif not IsEmpty(user_param) then
+    Error("the 4th argument <user_param> must be an empty list ",
+          "when the 3rd argument <hook> is fail");
   fi;
 
   CallFuncList(KernelHomomorphismDigraphsFinder, args);
@@ -424,16 +427,7 @@ function(D1, D2)
     D2 := DigraphRemoveAllMultipleEdges(D2);
   fi;
 
-  # The following lines can't just be
        return Union(List(AutomorphismGroup(D2), x -> hom * x));
-  # because of the requirement that homomorphisms fix all points greater than
-  # or equal to DigraphNrVertices(D1), and an automorphism might not fix these
-  # points.
-
-  #result := []; # TODO EmptyPlist
-  #for map in hom do
-# od;
-
 end);
 
 InstallMethod(SubdigraphsMonomorphismsRepresentatives,

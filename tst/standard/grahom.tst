@@ -2766,6 +2766,64 @@ gap> D := DigraphFromGraph6String("O^vMMF@oM?w@o@o?w?N?@");
 gap> Length(SubdigraphsMonomorphisms(CompleteMultipartiteDigraph([2, 7]), D));
 3432
 
+#
+gap> H := DigraphFromGraph6String("F~CWw");
+<immutable symmetric digraph with 7 vertices, 24 edges>
+gap> G := DigraphFromGraph6String("G@p}|{");
+<immutable symmetric digraph with 8 vertices, 36 edges>
+gap> ForAll(MonomorphismsDigraphs(H, G), x -> IsDigraphMonomorphism(H, G, x));
+true
+gap> H := NullDigraph(3);
+<immutable empty digraph with 3 vertices>
+gap> G := NullDigraph(510);
+<immutable empty digraph with 510 vertices>
+gap> p := MappingPermListList([1 .. 1000], [5 .. 1004]);;
+gap> IsDigraphAutomorphism(G, p);
+false
+gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
+> fail, true, [1, 2, 3], [1], fail, fail,
+> Group(MappingPermListList([1 .. 1000], [5 .. 1004])));
+Error, expected group of automorphisms, but found a non-automorphism in positi\
+on 1 of the group generators,
+gap> HomomorphismDigraphsFinder(NullDigraph(3), NullDigraph(510), fail, [], 1,
+> fail, true, [1, 2, 3], [1], fail, fail,
+> Group((511, 512)));
+[ IdentityTransformation ]
+
+# Issue 697
+gap> H := DigraphFromGraph6String("F~CWw");
+<immutable symmetric digraph with 7 vertices, 24 edges>
+gap> G := DigraphFromGraph6String("G@p}|{");
+<immutable symmetric digraph with 8 vertices, 36 edges>
+gap> HomomorphismDigraphsFinder(H,                   # domain
+> G,                      # range
+> fail,                   # hook
+> [],                     # user_param
+> 1,                      # max_results
+> 7,                      # hint (i.e. rank)
+> true,                   # injective
+> [1, 3, 4, 5, 6, 7, 8],  # image
+> [],                     # partial_map
+> fail,                   # colors1
+> fail,
+> DigraphWelshPowellOrder(H));  # FIXME this is still wrong!!
+[  ]
+gap> HomomorphismDigraphsFinder(H,                   # domain
+> G,                      # range
+> fail,                   # hook
+> [],                     # user_param
+> 1,                      # max_results
+> 7,                      # hint (i.e. rank)
+> true,                   # injective
+> [1, 3, 4, 5, 6, 7, 8],  # image
+> [],                     # partial_map
+> fail,                   # colors1
+> fail,
+> [1 .. 7]);
+[ Transformation( [ 1, 5, 7, 8, 3, 4, 6, 8 ] ) ]
+gap> IsDigraphHomomorphism(H, G, last[1]);
+true
+
 #  DIGRAPHS_UnbindVariables
 gap> Unbind(D);
 gap> Unbind(D1);
